@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% from "form_helper.html" import displayField %}
+{% block title %}Registration {% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="middle" style="top: 35vh">
+                    <img src="{{url_for('static', filename='images/default/logo.png')}}"/>
+                </div>
+            </div>
+            <div class="col">
+                <div id="register" style="display: block;">
+                    <div class="middle" style="top: 40vh">
+                        <h2 style="color: #28a745">Just type your data</h2>
+                        <form action="" method="POST" style="width: 25vw;">
+                            {{ displayField(form_reg.username, 'Username', autocomplete='off', autofocus='true') }}
+                            {{ displayField(form_reg.email, 'Email') }}
+                            {{ displayField(form_reg.password, 'Password') }}
+                            {{ displayField(form_reg.confirm_password, 'Confirm password') }}
+                        <div>
+                            {{ form_reg.submit(class="btn btn-success", style="background-color: #28a745") }}
+                            <button class="btn btn-success" style="background-color: #28a745" onclick="ChangeHome('register', 'login')"> Login </button>
+                        </div>
+                        {{ form_reg.csrf_token }}
+                        </form>
+                    </div>
+                </div>
+                <div id="login" style="display: none">
+                    <div class="middle" style="top: 40vh">
+                        <h2 style="color: #28a745">Login to our society</h2>
+                        <form method="POST" action="" style="width: 25vw;">
+                            {{ displayField(form_log.email, 'Email', autocomplete='off', autofocus='true') }}
+                            {{ displayField(form_log.password, 'Password') }}
+                            <div>
+                                {{ form_log.submit(class="btn btn-success", style="background-color: #28a745") }}
+                                <button class="btn btn-success" style="background-color: #28a745" onclick="change('register', 'login')"> Register </button>
+                            </div>
+                            {{ form_log.csrf_token }}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% from "form_helper.html" import displayField %}
+{% block title %} Complete your profile {% endblock %}
+{% block content %}
+    <div class="conteiner">
+        <div class="middle-up">
+            <form action="{{ url_for('complete') }}" method="POST" style="width: 300px;">
+                <h3>Login now!</h3>
+                <p>Enter your username and password</p>
+                {{ displayField(form.firstname, 'Firstname', autocomplete='off', autofocus='true') }}
+                {{ displayField(form.lastname, 'Lastname') }}
+                {{ displayField(form.date_of_birth, 'Date of birth') }}
+                <div>
+                    {{ form.submit(class="btn btn-dark") }}
+                </div>
+                {{ form.csrf_token }}
+            </form>
+        </div>
+    </div>
+{% endblock %}

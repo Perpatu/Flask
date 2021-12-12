@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block title %}Content{% endblock %}
+
+{% block search %}
+
+        <div class="dropdown">
+            <div class="projects">
+                <input type="text" name="search_text" id="search_text" class="search-input" placeholder="Search">
+                <div id="result"></div>
+            </div>
+        </div>
+
+
+{% endblock %}
+
+{% block content %}
+    <h1> to to{{ username }}</h1>
+
+{% endblock %}

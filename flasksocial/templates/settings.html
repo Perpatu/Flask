@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% from "form_helper.html" import displayField %}
+{% block title %}Settings{% endblock %}
+
+{% block search %}
+    <form class="form-inline my-2 my-lg-0" method="GET">
+        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+{% endblock %}
+
+{% block content %}
+ <div>
+        <form action="{{ url_for('settings') }}" method="POST" style="width: 48vw;">
+            <h3>Change your password</h3> 
+                {{ displayField(form.current_password, 'Current password') }}
+                {{ displayField(form.new_password, 'New password') }}
+                {{ displayField(form.confirm_new_password, 'Confirm new password') }}
+            <div>
+                {{ form.submit(class="btn btn-dark", style="background-color: #28a745") }}
+            </div>
+            {{ form.csrf_token }}
+        </form>
+
+        <form action="{{ url_for('settings') }}" method="POST" style="width: 48vw;">
+           <h3>Change your name</h3>
+               {{ displayField(form_name.new_name, 'New name') }}
+            <div>
+               {{ form_name.submit(class="btn btn-dark", style="background-color: #28a745") }}
+           </div>
+           {{ form_name.csrf_token }}
+        </form>
+ </div>
+{% endblock %}

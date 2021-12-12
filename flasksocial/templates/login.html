@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% from "form_helper.html" import displayField %}
+{% block title %} Login Page {% endblock %}
+
+{% block content %}
+    <div class="middle">
+       <h2 style="color: #28a745">Login to our society</h2>
+        <form method="POST" action="">
+            {{ displayField(form.email, 'Email', autocomplete='off', autofocus='true') }}
+            {{ displayField(form.password, 'Password') }}
+            <div>
+                {{ form.submit(class="btn btn-success", style="background-color: #28a745") }}
+            </div>
+            {{ form.csrf_token }}
+        </form>
+    </div>
+{% endblock %}

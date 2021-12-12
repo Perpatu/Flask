@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}
+    {% if user %}
+        Profile | {{ user.username }}
+    {% else %}
+        Profile not found | {{ username1 }}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+
+    <div class="container">
+  <div class="row">
+    <div class="col">
+
+      <h1>Profile</h1>
+      <hr>
+
+      <div class="card">
+        <div class="card-body">
+          {% if user %}
+          <h5 class="card-title">{{ asd["name"]}}</h5>
+          <hr>
+          <p><strong>{{ user["name"] }}</strong></p>
+          {% else %}
+          <p>User {{ username1 }} not found</p>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
