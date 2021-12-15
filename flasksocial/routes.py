@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, request, jsonify
 from flasksocial import app, db, conn
 from flask_login import login_user, logout_user, login_required, current_user
-from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName
+from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, AddFriend
 from flasksocial.models import User
 from flasksocial import login
 from passlib.hash import pbkdf2_sha256
@@ -142,19 +142,31 @@ def settings():
     return redirect(url_for("login"))
 
 
-@app.route("/profile/<username>")
+@app.route("/profile/<username>", methods=["POST", "GET"])
 def user_profile(username):
+    add_friend = AddFriend()
     user = db.session.query(User).filter_by(username=username).first()
     directory_def = os.listdir('flasksocial/static/images/default')
-    directory_img = os.listdir('flasksocial/static/images/users_files')
+    directory_img = os.listdir('flasksocial/static/users_files')
     img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
-    return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img, user=user, username=username)
+    if add_friend.validate_on_submit():
+        friends_file = open('flasksocial/static/users_files/' + current_user.username + '/friends/' + current_user.username + '_friends.txt', 'r+')
+        friends_list = friends_file.read()
+        friends_list_split = friends_list.split(',')
+        del friends_list_split[-1]
+        if str(user.id) in friends_list_split:
+            print("jestescie juz znajomymi")
+        else:
+            friends_file.writelines(str(user.id) + ',')
+        friends_file.close()
+    return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img, user=user, username=username, form=add_friend)
+
 
 @app.route("/profile")
 @login_required
 def profile():
     directory_def = os.listdir('flasksocial/static/images/default')
-    directory_img = os.listdir('flasksocial/static/images/users_files')
+    directory_img = os.listdir('flasksocial/static/users_files')
     img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
     return render_template("personal_profile.html", img_file=img_file, directory=directory_def, directory_img=directory_img)
 

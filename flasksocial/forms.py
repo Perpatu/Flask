@@ -57,3 +57,7 @@ class ChangeName(FlaskForm):
 class Post(FlaskForm):
     content = TextAreaField('content', validators=[DataRequired()])
     submit = SubmitField('Share')
+
+
+class AddFriend(FlaskForm):
+    submit = SubmitField('Add Friend')

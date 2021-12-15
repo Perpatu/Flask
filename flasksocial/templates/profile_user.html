@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% from "form_helper.html" import displayField %}
 {% block title %}
     {% if user %}
         Profile | {{ user.username }}
@@ -31,7 +32,12 @@
 
                         <div class="profile-header-info">
                             <h4 class="m-t-sm" style="margin-bottom: 95px;">{{ user.firstname }} {{ user.lastname }}</h4>
-                            <a class="btn btn-xs btn-primary mb-2 link"  href="/settings">Add Friend</a>
+                            <form action="{{ url_for('user_profile', username=user.username) }}" method="POST" style="width: 48vw;">
+                                <div>
+                                    {{ form.submit(class="btn btn-dark", style="background-color: #28a745") }}
+                                </div>
+                                {{ form.csrf_token }}
+                            </form>
                         </div>
                     </div>
 
