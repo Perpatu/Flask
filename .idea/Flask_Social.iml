@@ -13,6 +13,7 @@
     <option name="TEMPLATE_FOLDERS">
       <list>
         <option value="$MODULE_DIR$/flasksocial/templates" />
+        <option value="$USER_HOME$/Flask_Social\templates" />
       </list>
     </option>
   </component>

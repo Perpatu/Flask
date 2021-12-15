@@ -1,6 +1,6 @@
 <div class="search-results">
     {% for row in username %}
-        <a style="color: white;" href="/content" ><li> {{ row.username }} </li></a>
+        <a style="color: white;" href="/profile/{{ row.username }}" ><li>{{ row.username }}</li></a>
         <hr>
     {% endfor %}
 </div>

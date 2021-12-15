@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}
     {% if current_user.is_authenticated %}
-        {{ current_user.username}}
+        Profile | {{ current_user.username }}
     {% else %}
         User not found
     {% endif %}
@@ -9,8 +9,12 @@
 
 {% block search %}
     <div class="dropdown">
-        <input style="width: 15vw;" type="text" name="search_text" id="search_text" class="form-control" placeholder="Search">
-        <div id="result"></div>
+        <div class="projects">
+            <form name="input_user">
+                <input type="text" name="search_text" id="search_text" class="search-input" placeholder="Search">
+                <div id="result"></div>
+            </form>
+        </div>
     </div>
 {% endblock %}
 

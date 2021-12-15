@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, flash, request, jsonify
-from flasksocial import app, db
+from flasksocial import app, db, conn
 from flask_login import login_user, logout_user, login_required, current_user
 from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName
 from flasksocial.models import User
@@ -8,12 +8,6 @@ from passlib.hash import pbkdf2_sha256
 import psycopg2
 import psycopg2.extras
 import os
-
-DB_HOST = "ec2-54-163-97-228.compute-1.amazonaws.com"
-DB_NAME = "d6dsehs7hroh07"
-DB_USER = "njkjgxoxjmyvtk"
-DB_PASS = "81e33a32ec010d5743aedf2c7cedf8c312408eaeb9a96063c0c6667dec6f63a4"
-conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 
 
 @login.user_loader
@@ -29,10 +23,13 @@ def index():
         login_form = Login()
         if reg_form.validate_on_submit():
             hashed_password = pbkdf2_sha256.hash(reg_form.password.data)
-            user = User(username=reg_form.username.data, email=reg_form.email.data, password=hashed_password)
+            user = User(username=reg_form.username.data, email=reg_form.email.data, password=hashed_password,
+                        friends=str(reg_form.username.data) + "_friends.json")
             db.session.add(user)
             db.session.commit()
-            os.makedirs('flasksocial\\static\\images\\users_files\\' + str(reg_form.username.data))
+            os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data))
+            os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data + '/friends'))
+            open('flasksocial/static/users_files/' + str(reg_form.username.data) + '/friends/' + str(reg_form.username.data) + '_friends.json', 'a').close()
             login_user(user)
             return redirect(url_for("complete"))
         elif login_form.validate_on_submit():
@@ -102,7 +99,7 @@ def content():
     return render_template("content.html")
 
 
-@app.route("/ajaxlivesearch",methods=["POST","GET"])
+@app.route("/ajaxlivesearch", methods=["POST", "GET"])
 def ajaxlivesearch():
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     if request.method == 'POST':
@@ -112,9 +109,8 @@ def ajaxlivesearch():
             cur.execute(query)
             username = cur.fetchall()
         else:
-            cur.execute('SELECT * FROM users WHERE username LIKE %(name)s', { 'name': '%{}%'.format(search_word)})
+            cur.execute('SELECT * FROM users WHERE username LIKE %(name)s', {'name': '%{}%'.format(search_word)})
             username = cur.fetchall()
-            asd = request.args
     return jsonify({'htmlresponse': render_template('response.html', username=username)})
 
 
@@ -146,41 +142,21 @@ def settings():
     return redirect(url_for("login"))
 
 
+@app.route("/profile/<username>")
+def user_profile(username):
+    user = db.session.query(User).filter_by(username=username).first()
+    directory_def = os.listdir('flasksocial/static/images/default')
+    directory_img = os.listdir('flasksocial/static/images/users_files')
+    img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
+    return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img, user=user, username=username)
+
 @app.route("/profile")
 @login_required
 def profile():
     directory_def = os.listdir('flasksocial/static/images/default')
     directory_img = os.listdir('flasksocial/static/images/users_files')
     img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
-    return render_template("profile.html", img_file=img_file, directory=directory_def, directory_img=directory_img)
-
-
-@app.route("/search/<username>")
-def user_profile(username):
-    asd = request.form.get("search_text")
-    user = db.session.query(User).filter_by(username=username).first()
-    directory_def = os.listdir('flasksocial/static/images/default')
-    directory_img = os.listdir('flasksocial/static/images/users_files')
-    img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
-    return render_template("search.html", img_file=img_file, directory=directory_def, directory_img=directory_img, user=user, username1=username)
-
-@app.route("/test",  methods=["POST", "GET"])
-def test():
-    asd = request.form.get("search_text")
-    return render_template("search.html", asd="asd")
-
-
-"""@app.route("/search/<username>", methods=["POST", "GET"])
-def search(username):
-    if request.method == "POST":
-        form = request.form
-        search_value = form['search_string'] = username
-        search = "%{0}%".format(search_value)
-        results = User.query.filter(User.username.like(search)).all()
-
-        return render_template("/search.html", results=results)
-    else:
-        return redirect('/')"""
+    return render_template("personal_profile.html", img_file=img_file, directory=directory_def, directory_img=directory_img)
 
 
 @app.route("/content")

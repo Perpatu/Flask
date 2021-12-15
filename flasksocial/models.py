@@ -13,12 +13,11 @@ class User(UserMixin, db.Model):
     lastname = db.Column(db.String(), nullable=False, default="")
     date_of_birth = db.Column(db.String(), nullable=False, default="")
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
+    friends = db.Column(db.String(50), nullable=False, default="")
     posts = db.relationship('Post', backref='author', lazy=True)
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
-
-
 
 
 class Post(db.Model):
