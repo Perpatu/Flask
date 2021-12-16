@@ -20,6 +20,13 @@ class User(UserMixin, db.Model):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
 
+class Friedns(db.Model):
+    __tablename__ = 'friends'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    friend_id = db.Column(db.Integer)
+
+
 class Post(db.Model):
     __tablename__ = 'posts'
     PostID = db.Column(db.Integer, primary_key=True)

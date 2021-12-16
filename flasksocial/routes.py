@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, flash, request, jsonify
 from flasksocial import app, db, conn
 from flask_login import login_user, logout_user, login_required, current_user
 from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, AddFriend
-from flasksocial.models import User
+from flasksocial.models import User, Friedns
 from flasksocial import login
 from passlib.hash import pbkdf2_sha256
 import psycopg2
@@ -105,7 +105,7 @@ def ajaxlivesearch():
     if request.method == 'POST':
         search_word = request.form['query']
         if search_word == '':
-            query = "SELECT * from users ORDER BY id"
+            query = "SELECT * FROM users ORDER BY id"
             cur.execute(query)
             username = cur.fetchall()
         else:
@@ -150,15 +150,29 @@ def user_profile(username):
     directory_img = os.listdir('flasksocial/static/users_files')
     img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
     if add_friend.validate_on_submit():
-        friends_file = open('flasksocial/static/users_files/' + current_user.username + '/friends/' + current_user.username + '_friends.txt', 'r+')
-        friends_list = friends_file.read()
-        friends_list_split = friends_list.split(',')
-        del friends_list_split[-1]
-        if str(user.id) in friends_list_split:
-            print("jestescie juz znajomymi")
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
+        cur.execute(query_empty_check)
+        empty = cur.fetchall()[0][0]
+        if empty == 0:
+            friend_current_user = Friedns(user_id=current_user.get_id(), friend_id=user.id)
+            friend_other_user = Friedns(user_id=user.id, friend_id=current_user.get_id())
+            db.session.add(friend_current_user)
+            db.session.add(friend_other_user)
+            db.session.commit()
         else:
-            friends_file.writelines(str(user.id) + ',')
-        friends_file.close()
+            query = "SELECT user_id, friend_id FROM friends WHERE user_id=" + current_user.get_id()
+            cur.execute(query)
+            for id_friend in cur.fetchall():
+                if id_friend[1] == user.id:
+                    flash(f'You are already friends', 'info')
+                    return redirect(url_for('user_profile', username=user.username))
+                else:
+                    friend_current_user = Friedns(user_id=current_user.get_id(), friend_id=user.id)
+                    friend_other_user = Friedns(user_id=user.id, friend_id=current_user.get_id())
+                    db.session.add(friend_current_user)
+                    db.session.add(friend_other_user)
+                    db.session.commit()
     return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img, user=user, username=username, form=add_friend)
 
 
