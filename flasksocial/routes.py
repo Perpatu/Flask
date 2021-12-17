@@ -171,14 +171,13 @@ def user_profile(username):
         db.session.add(friend_current_user)
         db.session.add(friend_other_user)
         db.session.commit()
-    cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(current_user_id)s'
-                ' AND friend_id=%(friends_id)s',
-                {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
+    cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(friends_id)s',
+                {'friends_id': '{}'.format(friends_id)})
     number_of_friends = cur.fetchall()[0][0]
-    friend = db.session.query(User).filter_by(user_id=friends_id).all()
+    friends = db.session.query(Friedns).filter_by(user_id=friends_id).all()
     return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
                            user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
-                           friend=friend)
+                           friends=friends)
 
 
 @app.route("/profile")

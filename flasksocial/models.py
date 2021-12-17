@@ -12,10 +12,9 @@ class User(UserMixin, db.Model):
     lastname = db.Column(db.String(100), nullable=False, default="")
     date_of_birth = db.Column(db.String(30), nullable=False, default="")
     image_file = db.Column(db.String(50), nullable=False, default='default.jpg')
-    friends = db.relationship('Friedns', backref='author', lazy=True)
 
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}', '{self.friends}')"
+        return f"User('{self.username}', '{self.email}', '{self.firstname}', '{self.lastname}')"
 
 
 class Friedns(db.Model):
@@ -23,9 +22,10 @@ class Friedns(db.Model):
     friends_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer())
     friend_id = db.Column(db.Integer(), db.ForeignKey('users.user_id'))
+    user = db.relationship('User', backref='author', lazy=True)
 
     def __repr__(self):
-        return f"Friend('{self.user_id}', '{self.friend_id}')"
+        return f"Friend('{self.user_id}', '{self.friend_id}', {self.user})"
 
 
 """class Post(db.Model):
