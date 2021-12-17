@@ -29,7 +29,8 @@ def index():
             db.session.commit()
             os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data))
             os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data + '/friends'))
-            open('flasksocial/static/users_files/' + str(reg_form.username.data) + '/friends/' + str(reg_form.username.data) + '_friends.json', 'a').close()
+            open('flasksocial/static/users_files/' + str(reg_form.username.data) + '/friends/' +
+                 str(reg_form.username.data) + '_friends.json', 'a').close()
             login_user(user)
             return redirect(url_for("complete"))
         elif login_form.validate_on_submit():
@@ -149,31 +150,33 @@ def user_profile(username):
     directory_def = os.listdir('flasksocial/static/images/default')
     directory_img = os.listdir('flasksocial/static/users_files')
     img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
+    current_user_id = current_user.get_id()
+    friends_id = user.id
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
     if add_friend.validate_on_submit():
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
         cur.execute(query_empty_check)
         empty = cur.fetchall()[0][0]
         if empty == 0:
-            friend_current_user = Friedns(user_id=current_user.get_id(), friend_id=user.id)
-            friend_other_user = Friedns(user_id=user.id, friend_id=current_user.get_id())
+            friend_current_user = Friedns(user_id=current_user_id, friend_id=friends_id)
+            friend_other_user = Friedns(user_id=friends_id, friend_id=current_user_id)
             db.session.add(friend_current_user)
             db.session.add(friend_other_user)
             db.session.commit()
-        else:
-            query = "SELECT user_id, friend_id FROM friends WHERE user_id=" + current_user.get_id()
-            cur.execute(query)
-            for id_friend in cur.fetchall():
-                if id_friend[1] == user.id:
-                    flash(f'You are already friends', 'info')
-                    return redirect(url_for('user_profile', username=user.username))
-                else:
-                    friend_current_user = Friedns(user_id=current_user.get_id(), friend_id=user.id)
-                    friend_other_user = Friedns(user_id=user.id, friend_id=current_user.get_id())
-                    db.session.add(friend_current_user)
-                    db.session.add(friend_other_user)
-                    db.session.commit()
-    return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img, user=user, username=username, form=add_friend)
+        cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
+                    ' AND friend_id=%(friends_id)s',
+                    {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
+        query_result = cur.fetchall()
+        if query_result[0][0] == 1:
+            flash(f'You are already friends', 'info')
+            return redirect(url_for('user_profile', username=user.username))
+        friend_current_user = Friedns(user_id=current_user_id, friend_id=friends_id)
+        friend_other_user = Friedns(user_id=friends_id, friend_id=current_user_id)
+        db.session.add(friend_current_user)
+        db.session.add(friend_other_user)
+        db.session.commit()
+    return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
+                           user=user, username=username, form=add_friend)
 
 
 @app.route("/profile")
@@ -182,7 +185,8 @@ def profile():
     directory_def = os.listdir('flasksocial/static/images/default')
     directory_img = os.listdir('flasksocial/static/users_files')
     img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
-    return render_template("personal_profile.html", img_file=img_file, directory=directory_def, directory_img=directory_img)
+    return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
+                           directory_img=directory_img)
 
 
 @app.route("/content")
