@@ -70,20 +70,21 @@
                                 <div class="tab-pane fade" id="profile-videos">
                                     asdc
                                 </div>
+
                                 <div class="tab-pane fade active show" id="profile-friends">
-
-                                </div>
-
-                                <!--<div class="tab-pane fade active show" id="profile-friends">
-                                    <div class="m-b-10"><b>Friend List (9)</b></div>
+                                    <div class="m-b-10"><b>Friend List ({{ number_of_friends }})</b></div>
 
                                     <ul class="friend-list clearfix">
                                         <li>
                                             <a href="#">
                                                 <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" /></div>
                                                 <div class="friend-info">
+                                                    {% for x in friend %}
+                                                        <p>{{ x.username }}</p>
+                                                    {% endfor %}
                                                     <h4>Sancho Aldo</h4>
                                                     <p>392 friends</p>
+
                                                 </div>
                                             </a>
                                         </li>
@@ -162,7 +163,7 @@
                                     </ul>
                                 </div>
                             </div>
-                        </div>-->
+                        </div>
                         <div class="col-md-4 hidden-xs hidden-sm">
                             <ul class="profile-info-list">
                                 <li class="title">PERSONAL INFORMATION</li>

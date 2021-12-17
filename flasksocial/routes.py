@@ -23,14 +23,10 @@ def index():
         login_form = Login()
         if reg_form.validate_on_submit():
             hashed_password = pbkdf2_sha256.hash(reg_form.password.data)
-            user = User(username=reg_form.username.data, email=reg_form.email.data, password=hashed_password,
-                        friends=str(reg_form.username.data) + "_friends.json")
+            user = User(username=reg_form.username.data, email=reg_form.email.data, password=hashed_password)
             db.session.add(user)
             db.session.commit()
             os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data))
-            os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data + '/friends'))
-            open('flasksocial/static/users_files/' + str(reg_form.username.data) + '/friends/' +
-                 str(reg_form.username.data) + '_friends.json', 'a').close()
             login_user(user)
             return redirect(url_for("complete"))
         elif login_form.validate_on_submit():
@@ -52,11 +48,11 @@ def complete():
         return redirect(url_for("login"))
     complete_form = Complete()
     if complete_form.validate_on_submit():
-        db.session.query(User).filter(User.id == current_user.get_id()).update(
+        db.session.query(User).filter(User.user_id == current_user.get_id()).update(
             {User.firstname: complete_form.firstname.data}, synchronize_session=False)
-        db.session.query(User).filter(User.id == current_user.get_id()).update(
+        db.session.query(User).filter(User.user_id == current_user.get_id()).update(
             {User.lastname: complete_form.lastname.data}, synchronize_session=False)
-        db.session.query(User).filter(User.id == current_user.get_id()).update(
+        db.session.query(User).filter(User.user_id == current_user.get_id()).update(
             {User.date_of_birth: complete_form.date_of_birth.data}, synchronize_session=False)
         db.session.commit()
         return redirect(url_for("content"))
@@ -89,7 +85,7 @@ def logout():
 @app.route("/content/delete", methods=["GET"])
 def delete():
     if current_user.is_authenticated:
-        db.session.query(User).filter(User.id == current_user.get_id()).delete(synchronize_session=False)
+        db.session.query(User).filter(User.user_id == current_user.get_id()).delete(synchronize_session=False)
         db.session.commit()
         return redirect(url_for("index"))
     return redirect(url_for("index"))
@@ -106,7 +102,7 @@ def ajaxlivesearch():
     if request.method == 'POST':
         search_word = request.form['query']
         if search_word == '':
-            query = "SELECT * FROM users ORDER BY id"
+            query = "SELECT * FROM users ORDER BY user_id"
             cur.execute(query)
             username = cur.fetchall()
         else:
@@ -123,8 +119,8 @@ def settings():
         if change_password_form.validate_on_submit():
             hashed_new_password = pbkdf2_sha256.hash(change_password_form.new_password.data)
             if pbkdf2_sha256.verify(change_password_form.current_password.data,
-                                    db.session.query(User).filter_by(id=current_user.get_id()).first().password):
-                db.session.query(User).filter(User.id == current_user.get_id()).update(
+                                    db.session.query(User).filter_by(user_id=current_user.get_id()).first().password):
+                db.session.query(User).filter(User.user_id == current_user.get_id()).update(
                     {User.password: hashed_new_password}, synchronize_session=False)
                 db.session.commit()
                 logout_user()
@@ -134,7 +130,7 @@ def settings():
             return render_template("settings.html", form=change_password_form, data=db)
         elif change_name_form.validate_on_submit():
             new_firstname = change_name_form.new_name.data
-            db.session.query(User).filter(User.id == current_user.get_id()).update({User.firstname: new_firstname})
+            db.session.query(User).filter(User.user_id == current_user.get_id()).update({User.firstname: new_firstname})
             db.session.commit()
             flash(f'Your name has been changed', 'success')
             return redirect(url_for("settings"))
@@ -151,7 +147,7 @@ def user_profile(username):
     directory_img = os.listdir('flasksocial/static/users_files')
     img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
     current_user_id = current_user.get_id()
-    friends_id = user.id
+    friends_id = user.user_id
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
     if add_friend.validate_on_submit():
@@ -175,8 +171,14 @@ def user_profile(username):
         db.session.add(friend_current_user)
         db.session.add(friend_other_user)
         db.session.commit()
+    cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(current_user_id)s'
+                ' AND friend_id=%(friends_id)s',
+                {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
+    number_of_friends = cur.fetchall()[0][0]
+    friend = db.session.query(User).filter_by(user_id=friends_id).all()
     return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
-                           user=user, username=username, form=add_friend)
+                           user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
+                           friend=friend)
 
 
 @app.route("/profile")

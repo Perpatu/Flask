@@ -1,33 +1,34 @@
-from datetime import datetime
 from flask_login import UserMixin
 from flasksocial import db
 
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(25), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(50), nullable=False)
-    firstname = db.Column(db.String(), nullable=False, default="")
-    lastname = db.Column(db.String(), nullable=False, default="")
-    date_of_birth = db.Column(db.String(), nullable=False, default="")
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-    friends = db.Column(db.String(50), nullable=False, default="")
-    posts = db.relationship('Post', backref='author', lazy=True)
+    password = db.Column(db.String(100), nullable=False)
+    firstname = db.Column(db.String(100), nullable=False, default="")
+    lastname = db.Column(db.String(100), nullable=False, default="")
+    date_of_birth = db.Column(db.String(30), nullable=False, default="")
+    image_file = db.Column(db.String(50), nullable=False, default='default.jpg')
+    friends = db.relationship('Friedns', backref='author', lazy=True)
 
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+        return f"User('{self.username}', '{self.email}', '{self.image_file}', '{self.friends}')"
 
 
 class Friedns(db.Model):
     __tablename__ = 'friends'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
-    friend_id = db.Column(db.Integer)
+    friends_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer())
+    friend_id = db.Column(db.Integer(), db.ForeignKey('users.user_id'))
+
+    def __repr__(self):
+        return f"Friend('{self.user_id}', '{self.friend_id}')"
 
 
-class Post(db.Model):
+"""class Post(db.Model):
     __tablename__ = 'posts'
     PostID = db.Column(db.Integer, primary_key=True)
     date_posted = db.Column(db.DateTime(), nullable=False, default=datetime.utcnow())
@@ -35,4 +36,4 @@ class Post(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
-        return f"Post('{self.content}', '{self.date_posted}')"
+        return f"Post('{self.content}', '{self.date_posted}')"""
