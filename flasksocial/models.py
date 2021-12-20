@@ -22,6 +22,8 @@ class Friedns(db.Model):
     friends_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer())
     friend_id = db.Column(db.Integer(), db.ForeignKey('users.user_id'))
+    invite = db.Column(db.Integer())
+    invite_time = db.Column(db.String(30))
     user = db.relationship('User', backref='author', lazy=True)
 
     def __repr__(self):

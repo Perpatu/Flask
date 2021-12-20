@@ -411,10 +411,13 @@ body .fc-widget-header a {
   background-color: rgb(197, 173, 181);
 }*/
 .dropdown {
-  z-index: 0;
-  position: relative;
-  margin-right: 16%;
-  margin-top: -3%;
+  position: absolute;
+  z-index: 1;
+  margin-right: 0;
+  margin-top: -1vh;
+  top: 20%;
+  left: 45%;
+  transform: translate(-50%, -50%);
 
 }
 
@@ -440,6 +443,7 @@ hr {
     background-color: #3e4045;
 }
 
-
-
-
+.bell{
+    position: relative;
+    z-index: 1;
+}
