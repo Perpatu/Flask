@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block search %}
+
     <div class="dropdown">
         <div class="projects">
             <form name="input_user">
@@ -16,10 +17,11 @@
             </form>
         </div>
     </div>
+
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container" style="position: absolute; padding-top: 75px;">
     <div id="content" class="content p-0">
         <div class="profile-header" style="background: url({{ url_for('static', filename='images/default/M3AlOLH.jpg') }}) center no-repeat;">
             <div class="profile-header-cover"></div>
@@ -66,90 +68,18 @@
 
 
                         <div class="tab-pane fade active show" id="profile-friends">
-                            <div class="m-b-10"><b>Friend List (9)</b></div>
-
+                            <div class="m-b-10"><b>Friend List ({{ number_of_friends }})</b></div>
                             <ul class="friend-list clearfix">
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Sancho Aldo</h4>
-                                            <p>392 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Jonty Augusto</h4>
-                                            <p>128 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar4.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Androkles Allen</h4>
-                                            <p>12 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar5.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Ithamar Silvio</h4>
-                                            <p>1,923 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar6.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Denzel Annas</h4>
-                                            <p>893 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Kamil Cree</h4>
-                                            <p>983 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar8.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Fritjof Inderjit</h4>
-                                            <p>3,321 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Sushil Trygve</h4>
-                                            <p>921 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <div class="friend-img"><img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" /></div>
-                                        <div class="friend-info">
-                                            <h4>Frans Gebhard</h4>
-                                            <p>944 friends</p>
-                                        </div>
-                                    </a>
-                                </li>
+                                {% for friend in friends %}
+                                    <li>
+                                        <a href="/profile/{{ friend.user.username }}">
+                                            <div class="friend-img"><img style="width:100%; height: 100%;" alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }}  /></div>
+                                            <div class="friend-info">
+                                                <p>{{ friend.user.firstname }} {{ friend.user.lastname }}</p>
+                                            </div>
+                                        </a>
+                                    </li>
+                                {% endfor %}
                             </ul>
                         </div>
                     </div>
@@ -189,18 +119,12 @@
                                 (123) 456-7890
                             </div>
                         </li>
-                        <li class="title">FRIEND LIST (9)</li>
+                        <li class="title">FRIEND LIST ({{ number_of_friends }})</li>
                         <li class="img-list">
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" /></a>
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="" /></a>
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar4.png" alt="" /></a>
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar5.png" alt="" /></a>
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar6.png" alt="" /></a>
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="" /></a>
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar8.png" alt="" /></a>
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="" /></a>
-                                <a href="#" class="m-b-5"><img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="" /></a>
-                            </li>
+                            {% for friend in friends %}
+                                <a href="/profile/{{ friend.user.username }}" class="m-b-5"><img alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }} /></a>
+                            {% endfor %}
+                        </li>
                         </ul>
                     </div>
                 </div>

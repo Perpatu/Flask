@@ -204,15 +204,20 @@ def user_profile(username):
 @login_required
 def profile():
     if current_user.is_authenticated:
-        current_user_id = current_user.get_id()
-        user = db.session.query(User).filter_by(user_id=current_user_id).first()
         directory_def = os.listdir('flasksocial/static/images/default')
         directory_img = os.listdir('flasksocial/static/users_files')
         img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        current_user_id = current_user.get_id()
+        user = db.session.query(User).filter_by(user_id=current_user_id).first()
+        cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(friends_id)s',
+                    {'friends_id': '{}'.format(current_user_id)})
+        number_of_friends = cur.fetchall()[0][0]
+        friends = db.session.query(Friedns).filter_by(user_id=current_user_id).all()
     else:
         return redirect(url_for("login"))
     return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
-                           directory_img=directory_img, user=user)
+                           directory_img=directory_img, user=user, friends=friends, number_of_friends=number_of_friends)
 
 
 """@app.route("/content")
