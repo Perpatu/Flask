@@ -19,14 +19,6 @@
         </div>
     </div>
 
-    {% if notification > 0 %}
-        <input class="bell" type="image" src="{{url_for('static', filename='images/bell_active.png')}}" alt="">
-    {% else %}
-        <input class="bell" type="image" src="{{url_for('static', filename='images/bell.png')}}" alt="">
-    {% endif %}
-
-
-
 {% endblock %}
 
 {% block content %}

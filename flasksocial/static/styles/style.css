@@ -407,18 +407,14 @@ body .fc-widget-header a {
   align-items: center;
 }
 
-/*.projects li:hover{
-  background-color: rgb(197, 173, 181);
-}*/
 .dropdown {
   position: absolute;
   z-index: 1;
   margin-right: 0;
-  margin-top: -1vh;
+  margin-top: -0.6vh;
   top: 20%;
   left: 45%;
   transform: translate(-50%, -50%);
-
 }
 
 hr {
@@ -427,10 +423,7 @@ hr {
 
 .search-input{
     position: relative;
-    width: 15vw;
-    height: 5vh;
     padding: 5%;
-    border-color: red;
     border-radius: 10vh;
     border: 5px;
     background-color: #3e4045;
@@ -438,7 +431,6 @@ hr {
 }
 
 .search-results{
-
     border-radius: 10px;
     background-color: #3e4045;
 }
@@ -446,4 +438,10 @@ hr {
 .bell{
     position: relative;
     z-index: 1;
+}
+
+#result{
+    border-radius: 10px;
+    background-color: #3e4045;
+    margin-left: 20px;
 }

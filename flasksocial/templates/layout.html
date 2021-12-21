@@ -9,6 +9,8 @@
     <title>{% block title %}{% endblock %}</title>
     <script src="{{url_for('static', filename='JS/divchange.js')}}"></script>
     <script src="{{url_for('static', filename='JS/lightbox-plus-jquery.min.js')}}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="{{url_for('static', filename='JS/notifications.js')}}"></script>
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/style.css')}}">
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/gallery.css')}}">
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles/lightbox.min.css')}}">
@@ -40,6 +42,7 @@
                     </li>
                   </ul>
                     {% block search %} {% endblock %}
+                    <div id="notification"></div>
                 </div>
         </nav>
     {% else %}
@@ -83,5 +86,6 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
     <script src="{{url_for('static', filename='JS/live_search.js')}}"></script>
+
 {% block script %}{% endblock %}
 </html>

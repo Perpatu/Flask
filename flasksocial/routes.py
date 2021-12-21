@@ -1,3 +1,5 @@
+import numpy as np
+
 from flask import render_template, redirect, url_for, flash, request, jsonify
 from flasksocial import app, db, conn
 from flask_login import login_user, logout_user, login_required, current_user
@@ -9,22 +11,6 @@ import datetime
 import psycopg2
 import psycopg2.extras
 import os
-
-
-def accept_invite(user_id):
-    """db.session.query(Friedns).filter(Friedns.user_id == current_user.get_id()).update(
-        {Friedns.friend_id: 0})
-    db.session.commit()"""
-    current_user_id = current_user.get_id()
-    if current_user_id == user_id:
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
-        result = cur.fetchall()[0][0]
-    else:
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + user_id)
-        result = cur.fetchall()[0][0]
-    return result
 
 
 @login.user_loader
@@ -84,7 +70,6 @@ def login():
             user = User.query.filter_by(email=login_form.email.data).first()
             if user and pbkdf2_sha256.verify(login_form.password.data, user.password):
                 login_user(user, remember=login_form.remember.data)
-                #accept_invite()
                 next_page = request.args.get('next')
                 return redirect(next_page) if next_page else redirect(url_for("content"))
             flash(f'Please check email or password', 'danger')
@@ -130,6 +115,15 @@ def ajaxlivesearch():
     return jsonify({'htmlresponse': render_template('response.html', username=username)})
 
 
+@app.route("/notifications", methods=["POST", "GET"])
+def accept_invite():
+    current_user_id = current_user.get_id()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
+    result = cur.fetchall()[0][0]
+    return jsonify('', render_template('notification_respone.html', notification=result))
+
+
 @app.route("/settings", methods=["POST", "GET"])
 def settings():
     if current_user.is_authenticated:
@@ -167,8 +161,8 @@ def user_profile(username):
     img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
     current_user_id = current_user.get_id()
     friends_id = user.user_id
-    #cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    #query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
     if add_friend.validate_on_submit():
         time = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         send_invite_to_other_user = Friedns(user_id=current_user_id, invite=friends_id, invite_time=time)
@@ -176,16 +170,16 @@ def user_profile(username):
         db.session.add(send_invite_to_other_user)
         db.session.add(receive_invite_from_user)
         db.session.commit()
-        #cur.execute(query_empty_check)
-        #empty = cur.fetchall()[0][0]
-        """if empty == 0:
+        cur.execute(query_empty_check)
+        empty = cur.fetchall()[0][0]
+        if empty == 0:
             send_invite_to_other_user = Friedns(user_id=current_user_id, invite=time)
             receive_invite_from_user = Friedns(user_id=friends_id, invite=time)
             db.session.add(send_invite_to_other_user)
             db.session.add(receive_invite_from_user)
-            db.session.commit()"""
+            db.session.commit()
 
-        """cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
+        cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
                     ' AND friend_id=%(friends_id)s',
                     {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
         query_result = cur.fetchall()
@@ -198,23 +192,27 @@ def user_profile(username):
         db.session.add(friend_other_user)
         db.session.commit()
     cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(friends_id)s',
-                {'friends_id': '{}'.format(friends_id)})"""
-    number_of_friends = 1#cur.fetchall()[0][0]
+                {'friends_id': '{}'.format(friends_id)})
+    number_of_friends = cur.fetchall()[0][0]
     friends = db.session.query(Friedns).filter_by(user_id=friends_id).all()
-    number_of_notification = accept_invite(str(friends_id))
     return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
                            user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
-                           friends=friends, notification=number_of_notification)
+                           friends=friends)
 
 
 @app.route("/profile")
 @login_required
 def profile():
-    directory_def = os.listdir('flasksocial/static/images/default')
-    directory_img = os.listdir('flasksocial/static/users_files')
-    img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
+    if current_user.is_authenticated:
+        current_user_id = current_user.get_id()
+        user = db.session.query(User).filter_by(user_id=current_user_id).first()
+        directory_def = os.listdir('flasksocial/static/images/default')
+        directory_img = os.listdir('flasksocial/static/users_files')
+        img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
+    else:
+        return redirect(url_for("login"))
     return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
-                           directory_img=directory_img)
+                           directory_img=directory_img, user=user)
 
 
 """@app.route("/content")
