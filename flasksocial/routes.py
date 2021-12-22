@@ -1,5 +1,3 @@
-import numpy as np
-
 from flask import render_template, redirect, url_for, flash, request, jsonify
 from flasksocial import app, db, conn
 from flask_login import login_user, logout_user, login_required, current_user
@@ -121,7 +119,7 @@ def accept_invite():
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
     result = cur.fetchall()[0][0]
-    return jsonify('', render_template('notification_respone.html', notification=result))
+    return jsonify({'htmlresponse': render_template('notification_respone.html', notification_title=str(result), notification=result)})
 
 
 @app.route("/settings", methods=["POST", "GET"])
@@ -164,17 +162,19 @@ def user_profile(username):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
     if add_friend.validate_on_submit():
-        time = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-        send_invite_to_other_user = Friedns(user_id=current_user_id, invite=friends_id, invite_time=time)
-        receive_invite_from_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
-        db.session.add(send_invite_to_other_user)
-        db.session.add(receive_invite_from_user)
-        db.session.commit()
         cur.execute(query_empty_check)
         empty = cur.fetchall()[0][0]
         if empty == 0:
-            send_invite_to_other_user = Friedns(user_id=current_user_id, invite=time)
-            receive_invite_from_user = Friedns(user_id=friends_id, invite=time)
+            time = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            send_invite_to_other_user = Friedns(user_id=current_user_id, invite=friends_id, invite_time=time)
+            receive_invite_from_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
+            db.session.add(send_invite_to_other_user)
+            db.session.add(receive_invite_from_user)
+            db.session.commit()
+        else:
+            time = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            send_invite_to_other_user = Friedns(user_id=current_user_id, invite=friends_id, invite_time=time)
+            receive_invite_from_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
             db.session.add(send_invite_to_other_user)
             db.session.add(receive_invite_from_user)
             db.session.commit()
@@ -186,11 +186,6 @@ def user_profile(username):
         if query_result[0][0] == 1:
             flash(f'You are already friends', 'info')
             return redirect(url_for('user_profile', username=user.username))
-        friend_current_user = Friedns(user_id=current_user_id, friend_id=friends_id)
-        friend_other_user = Friedns(user_id=friends_id, friend_id=current_user_id)
-        db.session.add(friend_current_user)
-        db.session.add(friend_other_user)
-        db.session.commit()
     cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(friends_id)s',
                 {'friends_id': '{}'.format(friends_id)})
     number_of_friends = cur.fetchall()[0][0]
@@ -198,6 +193,7 @@ def user_profile(username):
     return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
                            user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
                            friends=friends)
+
 
 
 @app.route("/profile")
@@ -222,5 +218,7 @@ def profile():
 
 """@app.route("/content")
 def post():
-    result = db.session.query(User).filter_by(username='perpatu').first()
+    result = db.session.query(User).filter_by(username='perpatu').first() 
     return render_template("content.html", result=result)"""
+
+

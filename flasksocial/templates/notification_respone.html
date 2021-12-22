@@ -1,7 +1,13 @@
 <div id="notification">
     {% if notification == 0 %}
-        {{ pass }}
+       <input type="image" src="{{url_for('static', filename='images/bell.png')}}" alt="">
     {% else %}
-        {{ notification }}
+       <input type="image" src="{{url_for('static', filename='images/bell_active.png')}}" alt=""> {{ notification }}
     {% endif %}
 </div>
+<script>
+
+    let cos = document.title.toString();
+    document.title = cos + {{ notification_title }} ;
+
+</script>

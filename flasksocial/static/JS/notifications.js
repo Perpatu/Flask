@@ -1,7 +1,7 @@
 $(function() {
     window.setInterval(function(){
         loadNotifications()
-    }, 10000)
+    }, 1000)
 
     function loadNotifications() {
         $.ajax({
@@ -9,8 +9,10 @@ $(function() {
             type: "POST",
             dataType: "json",
             success:function(data) {
-                $(notification).replaceWith(data)
+                $('#notification').html(data);
+                $("#notification").append(data.htmlresponse);
             }
         });
     }
 });
+
