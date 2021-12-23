@@ -119,8 +119,7 @@ def accept_invite():
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
     result = cur.fetchall()[0][0]
-    return jsonify({'htmlresponse': render_template('notification_respone.html', notification_title=str(result), notification=result)})
-
+    return jsonify(result)
 
 @app.route("/settings", methods=["POST", "GET"])
 def settings():
