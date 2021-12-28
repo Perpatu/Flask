@@ -61,3 +61,7 @@ class Post(FlaskForm):
 
 class AddFriend(FlaskForm):
     submit = SubmitField('Add Friend')
+
+
+class AcceptFriend(FlaskForm):
+    submit = SubmitField('accept')

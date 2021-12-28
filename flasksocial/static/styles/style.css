@@ -445,3 +445,56 @@ hr {
     background-color: #3e4045;
     margin-left: 20px;
 }
+
+#bell_active{
+    width: 40px;
+    height: 40px;
+}
+
+.bell_active_appearance {
+    position: relative;
+    z-index: 900;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    outline:none;
+    background: url('/static/images/rysunek_active.svg') no-repeat;
+
+}
+
+.bell_no_active_appearance {
+    position: relative;
+    z-index: 900;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    outline:none;
+    background: url('/static/images/rysunek.svg') no-repeat;
+}
+
+.bell_active_appearance:hover {
+    background-color: #3f474b;
+}
+
+.bell_active_appearance:focus {
+    background-color: #3f474b;
+    outline:none;
+}
+
+#notification {
+    position: absolute;
+    z-index: 901;
+    right: 30px;
+    top: 6px;
+    color: white;
+    font-weight: bold;
+    font-size: small;
+
+}
+
+.frame {
+    border-radius: 50%;
+}
+

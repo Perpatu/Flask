@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, request, jsonify
 from flasksocial import app, db, conn
 from flask_login import login_user, logout_user, login_required, current_user
-from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, AddFriend
+from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, AddFriend, AcceptFriend
 from flasksocial.models import User, Friedns
 from flasksocial import login
 from passlib.hash import pbkdf2_sha256
@@ -9,6 +9,28 @@ import datetime
 import psycopg2
 import psycopg2.extras
 import os
+
+
+def send_invite(current_user_id, friends_id):
+    time = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+    send_invite_to_other_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
+    #receive_invite_from_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
+    db.session.add(send_invite_to_other_user)
+    #db.session.add(receive_invite_from_user)
+    db.session.commit()
+
+
+def accept_invite(current_user_id):
+    #accept_friend_form = AcceptFriend()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
+    number_of_invites = cur.fetchall()[0][0]
+    if number_of_invites == 0:
+        pass
+    else:
+        cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
+        users_inivites = cur.fetchall()[0][0]
+        return users_inivites
 
 
 @login.user_loader
@@ -114,12 +136,15 @@ def ajaxlivesearch():
 
 
 @app.route("/notifications", methods=["POST", "GET"])
-def accept_invite():
+def notifications():
     current_user_id = current_user.get_id()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
-    result = cur.fetchall()[0][0]
-    return jsonify(result)
+    number_of_notifications = cur.fetchall()[0][0]
+    cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
+    number_of_inivtes = cur.fetchall()
+    return jsonify(number_of_notifications, number_of_inivtes)
+
 
 @app.route("/settings", methods=["POST", "GET"])
 def settings():
@@ -164,20 +189,9 @@ def user_profile(username):
         cur.execute(query_empty_check)
         empty = cur.fetchall()[0][0]
         if empty == 0:
-            time = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-            send_invite_to_other_user = Friedns(user_id=current_user_id, invite=friends_id, invite_time=time)
-            receive_invite_from_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
-            db.session.add(send_invite_to_other_user)
-            db.session.add(receive_invite_from_user)
-            db.session.commit()
+            send_invite(current_user_id, friends_id)
         else:
-            time = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-            send_invite_to_other_user = Friedns(user_id=current_user_id, invite=friends_id, invite_time=time)
-            receive_invite_from_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
-            db.session.add(send_invite_to_other_user)
-            db.session.add(receive_invite_from_user)
-            db.session.commit()
-
+            send_invite(current_user_id, friends_id)
         cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
                     ' AND friend_id=%(friends_id)s',
                     {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
@@ -185,14 +199,13 @@ def user_profile(username):
         if query_result[0][0] == 1:
             flash(f'You are already friends', 'info')
             return redirect(url_for('user_profile', username=user.username))
-    cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(friends_id)s',
+    cur.execute('SELECT COUNT(friend_id) FROM friends WHERE friend_id=%(friends_id)s',
                 {'friends_id': '{}'.format(friends_id)})
     number_of_friends = cur.fetchall()[0][0]
     friends = db.session.query(Friedns).filter_by(user_id=friends_id).all()
     return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
                            user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
                            friends=friends)
-
 
 
 @app.route("/profile")
@@ -214,6 +227,10 @@ def profile():
     return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
                            directory_img=directory_img, user=user, friends=friends, number_of_friends=number_of_friends)
 
+
+@app.route("/cos")
+def cos():
+    return render_template("cos.html")
 
 """@app.route("/content")
 def post():

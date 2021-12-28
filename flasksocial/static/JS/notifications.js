@@ -5,21 +5,26 @@ function loadNotifications() {
         .then((response) => {
             return response.json();
         })
-        .then((result) => {
-            let resultContainer = document.getElementById("notification");
-            if (result === 0) {
+        .then((data) => {
+            let imageContainer = document.getElementById("bell_active");
+            let resultContainer = document.getElementById('notification');
+            if (parseInt(data[0]) === 0) {
                 document.title = page_title;
+                $('#notification').remove();
+                imageContainer.innerHTML = "<button class=\"bell_no_active_appearance\"></button>";
             }
+
             else {
-                document.title = page_title + ' (' + result + ')';
+                $('.frame').append($('<div id="notification"></div>'));
+                resultContainer.innerHTML = data[0];
+                imageContainer.innerHTML = "<button class=\"bell_active_appearance\"></button>";
+                document.title = page_title + ' (' + data[0] + ')';
             }
-            resultContainer.innerHTML = JSON.stringify(result);
         });
 }
+
 loadNotifications();
-setInterval(loadNotifications, 1000);
-
-
+setInterval(loadNotifications, 5000);
 
 
 

@@ -19,7 +19,6 @@
     </div>
 
 
-
 {% endblock %}
 
 {% block content %}
@@ -72,6 +71,9 @@
                         <div class="tab-pane fade active show" id="profile-friends">
                             <div class="m-b-10"><b>Friend List ({{ number_of_friends }})</b></div>
                             <ul class="friend-list clearfix">
+                            {% if number_of_friends == 0 %}
+                                <p>Brak znajomych</p>
+                            {% else %}
                                 {% for friend in friends %}
                                     <li>
                                         <a href="/profile/{{ friend.user.username }}">
@@ -82,6 +84,7 @@
                                         </a>
                                     </li>
                                 {% endfor %}
+                            {% endif %}
                             </ul>
                         </div>
                     </div>
