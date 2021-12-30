@@ -6,5 +6,4 @@ document.addEventListener('mouseup', function(e) {
 });
 
 function showDiv() {
-   document.getElementById('notifications_list').style.display = "block";
-}
+   document.getElementById('notifications_list').style.display = "block";}

@@ -20,19 +20,6 @@ def send_invite(current_user_id, friends_id):
     db.session.commit()
 
 
-def accept_invite(current_user_id):
-    #accept_friend_form = AcceptFriend()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
-    number_of_invites = cur.fetchall()[0][0]
-    if number_of_invites == 0:
-        return None
-    else:
-        cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
-        users_inivites = cur.fetchall()
-        return users_inivites
-
-
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -120,33 +107,6 @@ def content():
     return render_template("content.html")
 
 
-@app.route("/ajaxlivesearch", methods=["POST", "GET"])
-def ajaxlivesearch():
-    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    if request.method == 'POST':
-        search_word = request.form['query']
-        if search_word == '':
-            query = "SELECT * FROM users ORDER BY user_id"
-            cur.execute(query)
-            username = cur.fetchall()
-        else:
-            cur.execute('SELECT * FROM users WHERE username LIKE %(name)s', {'name': '%{}%'.format(search_word)})
-            username = cur.fetchall()
-    return jsonify({'htmlresponse': render_template('response.html', username=username)})
-
-
-@app.route("/notifications", methods=["POST", "GET"])
-def notifications():
-    current_user_id = current_user.get_id()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
-    number_of_notifications = cur.fetchall()[0][0]
-    #cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
-    #number_of_inivtes = cur.fetchall()
-    return jsonify(number_of_notifications)
-
-
-
 @app.route("/settings", methods=["POST", "GET"])
 def settings():
     if current_user.is_authenticated:
@@ -226,13 +186,47 @@ def profile():
     else:
         return redirect(url_for("login"))
     return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
-                           directory_img=directory_img, user=user, friends=friends, number_of_friends=number_of_friends,
-                           accept_invite=accept_invite(current_user_id), db=db, User=User)
+                           directory_img=directory_img, user=user, friends=friends, number_of_friends=number_of_friends)
 
 
-@app.route("/cos")
-def cos():
-    return render_template("cos.html")
+@app.route("/ajaxlivesearch", methods=["POST", "GET"])
+def ajaxlivesearch():
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    if request.method == 'POST':
+        search_word = request.form['query']
+        if search_word == '':
+            query = "SELECT * FROM users ORDER BY user_id"
+            cur.execute(query)
+            username = cur.fetchall()
+        else:
+            cur.execute('SELECT * FROM users WHERE username LIKE %(name)s', {'name': '%{}%'.format(search_word)})
+            username = cur.fetchall()
+    return jsonify({'htmlresponse': render_template('response.html', username=username)})
+
+
+@app.route("/notifications", methods=["POST", "GET"])
+def notifications():
+    current_user_id = current_user.get_id()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
+    number_of_notifications = cur.fetchall()[0][0]
+    #cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
+    #number_of_inivtes = cur.fetchall()
+    return jsonify(number_of_notifications)
+
+
+@app.route("/accept_invite", methods=["POST", "GET"])
+def accept_invite():
+    #accept_friend_form = AcceptFriend()
+    current_user_id = current_user.get_id()
+    user = db.session.query(User)
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    #cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
+    #number_of_invites = cur.fetchall()[0][0]
+    cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
+    users_inivites = cur.fetchall()
+    return jsonify({'htmlresponse': render_template('accept_invite.html', users_inivites=users_inivites, user=user)})
+
 
 """@app.route("/content")
 def post():

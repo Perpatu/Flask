@@ -8,7 +8,6 @@ function loadNotifications() {
         .then((data) => {
             let bell_activeContainer = document.getElementById('bell_active');
             let notificationContainer = document.getElementById('notification');
-            //let notifications_listContainer = document.getElementById('notifications_list')
             if (parseInt(data) === 0) {
                 document.title = page_title;
                 $('#notification').remove();
@@ -24,28 +23,19 @@ function loadNotifications() {
         });
 }
 
+function load_invite_notifications(){
+    $.ajax({
+        url:"/accept_invite",
+        method:"POST",
+        success:function(data){
+            $('#notifications_list').html(data);
+            $("#notifications_list").append(data.htmlresponse);
+        }
+    });
+}
+
+load_invite_notifications();
+setInterval(load_invite_notifications,5000);
+
 loadNotifications();
 setInterval(loadNotifications, 5000);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

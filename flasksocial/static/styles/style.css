@@ -506,16 +506,51 @@ hr {
 #notifications_list {
     display: none;
     position: absolute;
-    overflow-y: hidden;
+    overflow: hidden;
     width: 360px;
-    height: 200px;
+    height: 500px;
     right: 30px;
-    padding-top: 20px;
-    padding-left: 20px;
+    padding-top: 10px;
     background-color: #343A40;
     border: solid 1px #515556;
 }
 
 #notifications_list:hover {
-    overflow-y: auto;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+#notifications_list a {
+    text-decoration: none;
+    color: white;
+    padding-left: 10px;
+}
+
+#notifications_list p {
+    margin-top: 15px;
+    padding-left: 10px;
+}
+
+.image_div_notifications {
+    display: inline-flex;
+    width: 100%;
+    padding: 10px;
+}
+
+.notifications_list_background:hover {
+    background-color: #3f474b;
+}
+
+.image-cropper {
+  width: 50px;
+  height: 50px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.image-cropper img {
+  margin: auto;
+  height: 100%;
+  width: auto;
 }
