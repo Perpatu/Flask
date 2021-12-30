@@ -27,7 +27,7 @@ class Friedns(db.Model):
     user = db.relationship('User', backref='author', lazy=True)
 
     def __repr__(self):
-        return f"Friend('{self.user_id}', '{self.friend_id}', {self.user})"
+        return f"Friend('{self.user_id}', '{self.friend_id}', {self.user}, {self.invite})"
 
 
 """class Post(db.Model):

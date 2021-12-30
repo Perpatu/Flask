@@ -21,6 +21,19 @@
 
 {% endblock %}
 
+{% block notification %}
+
+    <div id="notifications_list">
+        {% for x in accept_invite %}
+            {{ db.session.query(User).filter_by(user_id=x[0]).first().firstname }}
+            {{ db.session.query(User).filter_by(user_id=x[0]).first().lastname }}
+            <br>
+            <hr>
+        {% endfor %}
+    </div>
+
+{% endblock %}
+
 {% block content %}
 <div class="container" style="position: absolute; padding-top: 75px;">
     <div id="content" class="content p-0">

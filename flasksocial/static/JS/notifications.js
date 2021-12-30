@@ -6,19 +6,20 @@ function loadNotifications() {
             return response.json();
         })
         .then((data) => {
-            let imageContainer = document.getElementById("bell_active");
-            let resultContainer = document.getElementById('notification');
-            if (parseInt(data[0]) === 0) {
+            let bell_activeContainer = document.getElementById('bell_active');
+            let notificationContainer = document.getElementById('notification');
+            //let notifications_listContainer = document.getElementById('notifications_list')
+            if (parseInt(data) === 0) {
                 document.title = page_title;
                 $('#notification').remove();
-                imageContainer.innerHTML = "<button class=\"bell_no_active_appearance\"></button>";
+                bell_activeContainer.innerHTML = "<button class=\"bell_no_active_appearance\" onclick=\"showDiv()\"></button>";
             }
 
             else {
                 $('.frame').append($('<div id="notification"></div>'));
-                resultContainer.innerHTML = data[0];
-                imageContainer.innerHTML = "<button class=\"bell_active_appearance\"></button>";
-                document.title = page_title + ' (' + data[0] + ')';
+                notificationContainer.innerHTML = data;
+                bell_activeContainer.innerHTML = "<button class=\"bell_active_appearance\" onclick=\"showDiv()\"></button>";
+                document.title = page_title + ' (' + data + ')';
             }
         });
 }

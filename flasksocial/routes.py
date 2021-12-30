@@ -26,10 +26,10 @@ def accept_invite(current_user_id):
     cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
     number_of_invites = cur.fetchall()[0][0]
     if number_of_invites == 0:
-        pass
+        return None
     else:
         cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
-        users_inivites = cur.fetchall()[0][0]
+        users_inivites = cur.fetchall()
         return users_inivites
 
 
@@ -141,9 +141,10 @@ def notifications():
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
     number_of_notifications = cur.fetchall()[0][0]
-    cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
-    number_of_inivtes = cur.fetchall()
-    return jsonify(number_of_notifications, number_of_inivtes)
+    #cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
+    #number_of_inivtes = cur.fetchall()
+    return jsonify(number_of_notifications)
+
 
 
 @app.route("/settings", methods=["POST", "GET"])
@@ -225,7 +226,8 @@ def profile():
     else:
         return redirect(url_for("login"))
     return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
-                           directory_img=directory_img, user=user, friends=friends, number_of_friends=number_of_friends)
+                           directory_img=directory_img, user=user, friends=friends, number_of_friends=number_of_friends,
+                           accept_invite=accept_invite(current_user_id), db=db, User=User)
 
 
 @app.route("/cos")
