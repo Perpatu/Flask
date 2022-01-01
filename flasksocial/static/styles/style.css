@@ -488,6 +488,15 @@ hr {
     outline:none;
 }
 
+.bell_no_active_appearance:hover {
+    background-color: #3f474b;
+}
+
+.bell_no_active_appearance:focus {
+    background-color: #3f474b;
+    outline:none;
+}
+
 #notification {
     position: absolute;
     z-index: 901;

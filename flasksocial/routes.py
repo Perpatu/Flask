@@ -21,8 +21,8 @@ def send_invite(current_user_id, friends_id):
 
 
 @login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @app.route('/', methods=["POST", "GET"])
@@ -232,5 +232,4 @@ def accept_invite():
 def post():
     result = db.session.query(User).filter_by(username='perpatu').first() 
     return render_template("content.html", result=result)"""
-
 
