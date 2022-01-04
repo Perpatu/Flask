@@ -51,6 +51,7 @@ def index():
 
 
 @app.route('/complete', methods=["POST", "GET"])
+@login_required
 def complete():
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
@@ -84,6 +85,7 @@ def login():
 
 
 @app.route("/logout", methods=["GET"])
+@login_required
 def logout():
     logout_user()
     flash(f'You have been logged out!', 'success')
@@ -91,6 +93,7 @@ def logout():
 
 
 @app.route("/content/delete", methods=["GET"])
+@login_required
 def delete():
     if current_user.is_authenticated:
         db.session.query(User).filter(User.user_id == current_user.get_id()).delete(synchronize_session=False)
@@ -100,12 +103,14 @@ def delete():
 
 
 @app.route("/content", methods=["POST", "GET"])
+@login_required
 def content():
 
     return render_template("content.html")
 
 
 @app.route("/settings", methods=["POST", "GET"])
+@login_required
 def settings():
     if current_user.is_authenticated:
         change_password_form = ChangePassword()
@@ -134,6 +139,7 @@ def settings():
 
 
 @app.route("/profile/<username>", methods=["POST", "GET"])
+@login_required
 def user_profile(username):
     add_friend = AddFriend()
     user = db.session.query(User).filter_by(username=username).first()
