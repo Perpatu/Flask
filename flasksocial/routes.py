@@ -1,9 +1,9 @@
 from flask import render_template, redirect, url_for, flash, request, jsonify
-from flasksocial import app, db, conn
+from sqlalchemy.sql.elements import Null
+from flasksocial import app, db, conn, login
 from flask_login import login_user, logout_user, login_required, current_user
 from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, AddFriend, AcceptFriend
-from flasksocial.models import User, Friedns
-from flasksocial import login
+from flasksocial.models import User, Friends
 from passlib.hash import pbkdf2_sha256
 import datetime
 import psycopg2
@@ -13,10 +13,8 @@ import os
 
 def send_invite(current_user_id, friends_id):
     time = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-    send_invite_to_other_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
-    #receive_invite_from_user = Friedns(user_id=friends_id, invite=current_user_id, invite_time=time)
-    db.session.add(send_invite_to_other_user)
-    #db.session.add(receive_invite_from_user)
+    send_invite_to_other_user = Friends(user_id=friends_id, invite=current_user_id, invite_time=time)    
+    db.session.add(send_invite_to_other_user)    
     db.session.commit()
 
 
@@ -53,6 +51,7 @@ def index():
 
 
 @app.route('/complete', methods=["POST", "GET"])
+@login_required
 def complete():
     if not current_user.is_authenticated:
         return redirect(url_for("login"))
@@ -86,6 +85,7 @@ def login():
 
 
 @app.route("/logout", methods=["GET"])
+@login_required
 def logout():
     logout_user()
     flash(f'You have been logged out!', 'success')
@@ -93,6 +93,7 @@ def logout():
 
 
 @app.route("/content/delete", methods=["GET"])
+@login_required
 def delete():
     if current_user.is_authenticated:
         db.session.query(User).filter(User.user_id == current_user.get_id()).delete(synchronize_session=False)
@@ -102,12 +103,14 @@ def delete():
 
 
 @app.route("/content", methods=["POST", "GET"])
+@login_required
 def content():
 
     return render_template("content.html")
 
 
 @app.route("/settings", methods=["POST", "GET"])
+@login_required
 def settings():
     if current_user.is_authenticated:
         change_password_form = ChangePassword()
@@ -136,6 +139,7 @@ def settings():
 
 
 @app.route("/profile/<username>", methods=["POST", "GET"])
+@login_required
 def user_profile(username):
     add_friend = AddFriend()
     user = db.session.query(User).filter_by(username=username).first()
@@ -163,7 +167,7 @@ def user_profile(username):
     cur.execute('SELECT COUNT(friend_id) FROM friends WHERE friend_id=%(friends_id)s',
                 {'friends_id': '{}'.format(friends_id)})
     number_of_friends = cur.fetchall()[0][0]
-    friends = db.session.query(Friedns).filter_by(user_id=friends_id).all()
+    friends = db.session.query(Friends).filter_by(user_id=friends_id).all()
     return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
                            user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
                            friends=friends)
@@ -182,7 +186,7 @@ def profile():
         cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(friends_id)s',
                     {'friends_id': '{}'.format(current_user_id)})
         number_of_friends = cur.fetchall()[0][0]
-        friends = db.session.query(Friedns).filter_by(user_id=current_user_id).all()
+        friends = db.session.query(Friends).filter_by(user_id=current_user_id).all()        
     else:
         return redirect(url_for("login"))
     return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
@@ -209,27 +213,45 @@ def notifications():
     current_user_id = current_user.get_id()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
-    number_of_notifications = cur.fetchall()[0][0]
-    #cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
-    #number_of_inivtes = cur.fetchall()
+    number_of_notifications = cur.fetchall()[0][0]    
     return jsonify(number_of_notifications)
 
 
 @app.route("/accept_invite", methods=["POST", "GET"])
 def accept_invite():
-    #accept_friend_form = AcceptFriend()
+    accept_friend_form = AcceptFriend()   
     current_user_id = current_user.get_id()
-    user = db.session.query(User)
-    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    #cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
-    #number_of_invites = cur.fetchall()[0][0]
+    user = db.session.query(User)    
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)    
     cur.execute('SELECT invite FROM friends WHERE user_id=' + current_user_id)
-    users_inivites = cur.fetchall()
-    return jsonify({'htmlresponse': render_template('accept_invite.html', users_inivites=users_inivites, user=user)})
+    users_inivites = cur.fetchall()    
+    if accept_friend_form.validate_on_submit():        
+        if accept_friend_form.accept.data:
+            invite_id = int(request.form['accept'])
+            cos = db.session.query(Friends).filter_by(user_id=current_user_id).all()  
+            for user_invitation in cos:
+                if user_invitation.invite == invite_id:      
+                    db.session.query(Friends).filter_by(user_id=current_user_id, invite=user_invitation.invite).update({Friends.friend_id:
+                    user_invitation.invite}, synchronize_session=False)
+                    db.session.query(Friends).filter_by(user_id=current_user_id, invite=user_invitation.invite).update({Friends.invite_time:
+                    None}, synchronize_session=False)
+                    db.session.query(Friends).filter_by(user_id=current_user_id, invite=user_invitation.invite).update({Friends.invite:
+                    None}, synchronize_session=False)
+                    db.session.add(Friends(user_id=user_invitation.invite, friend_id=current_user_id))
+                    db.session.commit()                    
+        elif accept_friend_form.discard.data:
+            invite_id = int(request.form['discard'])
+            cos = db.session.query(Friends).filter_by(user_id=current_user_id).all()  
+            for user_invitation in cos:
+                if user_invitation.invite == invite_id:                    
+                    db.session.query(Friends).filter_by(user_id=current_user_id, invite=user_invitation.invite).delete()
+                    db.session.commit()                        
+        return redirect(url_for("profile"))       
+    return jsonify({'htmlresponse': render_template('accept_invite.html', db=db, user=user, users_inivites=users_inivites,
+                                                                          accept_form=accept_friend_form)})
 
 
 """@app.route("/content")
 def post():
     result = db.session.query(User).filter_by(username='perpatu').first() 
     return render_template("content.html", result=result)"""
-

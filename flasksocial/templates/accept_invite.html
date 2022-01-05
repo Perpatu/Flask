@@ -1,15 +1,35 @@
 {% for invitation in users_inivites %}
-    <div class="notifications_list_background">
-        <a href="profile/{{ user.filter_by(user_id=invitation[0]).first().username }}">
-            <div class="image_div_notifications">
-                <div class="image-cropper">
-                    <img alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }}/>
+    {% if user.filter_by(user_id=invitation[0]).first().user_id %}
+        <div class="notifications_list_background">
+            <a href="{{ user.filter_by(user_id=invitation[0]).first().username }}">
+                <div class="image_div_notifications">
+                    <div class="image-cropper">
+                        <img alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }}/>
+                    </div>
+                    <p>
+                        {{ user.filter_by(user_id=invitation[0]).first().firstname }}
+                        {{ user.filter_by(user_id=invitation[0]).first().lastname }}                   
+                                                    
+                    </p>
+                    
+                    <form action="{{ url_for('accept_invite') }}" method="POST" style="margin-left: 25px; margin-top: 12px;">
+                        <div>
+                            {{ accept_form.accept(class="btn btn-success", value=user.filter_by(user_id=invitation[0]).first().user_id,
+                                style="color: #dc3545; width: 63px; height: 31px; text-indent: -9999px; background: url('/static/images/accept.png') no-repeat;
+                                background-color: #28a745;")}}  
+                        </div>
+
+                        <div style="margin-left: 70px; margin-top: -31px; position: absolute;">                        
+                            {{ accept_form.discard(class="btn btn-danger", value=user.filter_by(user_id=invitation[0]).first().user_id,
+                                style="color: #dc3545; width: 63px; height: 31px; text-indent: -9999px; background: url('/static/images/discard.png') no-repeat;
+                                background-color: #dc3545")}}                                                       
+                        </div>                    
+                        {{ accept_form.csrf_token }}
+                    </form>                   
                 </div>
-                <p>
-                    {{ user.filter_by(user_id=invitation[0]).first().firstname }}
-                    {{ user.filter_by(user_id=invitation[0]).first().lastname }}
-                </p>
-            </div>
-        </a>
-    </div>
+            </a>           
+        </div>
+    {% else %}
+        {{ pass }}
+    {% endif %} 
 {% endfor %}

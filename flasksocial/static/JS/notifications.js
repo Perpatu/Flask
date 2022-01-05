@@ -14,9 +14,16 @@ function loadNotifications() {
                 bell_activeContainer.innerHTML = "<button class=\"bell_no_active_appearance\" onclick=\"showDiv()\"></button>";
             }
 
-            else {
+            else if (parseInt(data) > 0) {
                 $('.frame').append($('<div id="notification"></div>'));
                 notificationContainer.innerHTML = data;
+                bell_activeContainer.innerHTML = "<button class=\"bell_active_appearance\" onclick=\"showDiv()\"></button>";
+                document.title = page_title + ' (' + data + ')';
+            }
+
+            else if (parseInt(data) > 9){
+                $('.frame').append($('<div id="notification"></div>'));
+                notificationContainer.innerHTML = "9+";
                 bell_activeContainer.innerHTML = "<button class=\"bell_active_appearance\" onclick=\"showDiv()\"></button>";
                 document.title = page_title + ' (' + data + ')';
             }

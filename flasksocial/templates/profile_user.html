@@ -85,15 +85,18 @@
                                         <p>Brak znajomych</p>
                                     {% else %}
                                         {% for friend in friends %}
-                                            {{ friends }}
-                                            <li>
-                                                <a href="/profile/{{ friend.user.username }}">
-                                                    <div class="friend-img"><img style="width:100%; height: 100%;" alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }}  /></div>
-                                                    <div class="friend-info">
-                                                        <p>{{ friend.user.firstname }} {{ friend.user.lastname }}</p>
-                                                    </div>
-                                                </a>
-                                            </li>
+                                            {% if friend.user %}
+                                                <li>
+                                                    <a href="/profile/{{ friend.user.username }}">
+                                                        <div class="friend-img"><img style="width:100%; height: 100%;" alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }}  /></div>
+                                                        <div class="friend-info">
+                                                            <p>{{ friend.user.firstname }} {{ friend.user.lastname }}</p>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                {{ pass }}
+                                            {% endif %}
                                         {% endfor %}
                                     {% endif %}
                                     </ul>
@@ -138,7 +141,11 @@
                                 <li class="title">FRIEND LIST ({{ number_of_friends }})</li>
                                 <li class="img-list">
                                     {% for friend in friends %}
-                                         <a href="/profile/{{ friend.user.username }}" class="m-b-5"><img alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }} /></a>
+                                        {% if friend.user %}
+                                            <a href="/profile/{{ friend.user.username }}" class="m-b-5"><img alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }} /></a>
+                                        {% else %}
+                                            {{ pass }}
+                                        {% endif %}
                                     {% endfor %}
                                 </li>
                                 </ul>

@@ -453,7 +453,7 @@ hr {
 
 #bell_active {
     width: 40px;
-    height: 40px;
+    height: 40px;    
 }
 
 .bell_active_appearance {
@@ -474,13 +474,14 @@ hr {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    padding-left: 20px;
     border: none;
     outline:none;
-    background: url('/static/images/rysunek.svg') no-repeat;
+    background: url('/static/images/rysunek.svg') no-repeat;    
 }
 
 .bell_active_appearance:hover {
-    background-color: #3f474b;
+    background-color: #3f474b;    
 }
 
 .bell_active_appearance:focus {
@@ -489,7 +490,7 @@ hr {
 }
 
 .bell_no_active_appearance:hover {
-    background-color: #3f474b;
+    background-color: #3f474b;    
 }
 
 .bell_no_active_appearance:focus {
@@ -500,12 +501,11 @@ hr {
 #notification {
     position: absolute;
     z-index: 901;
-    right: 30px;
+    right: 29px;
     top: 6px;
     color: white;
-    font-weight: bold;
-    font-size: small;
-
+    font-weight: 600;
+    font-size: small;    
 }
 
 .frame_bell {
@@ -522,6 +522,7 @@ hr {
     padding-top: 10px;
     background-color: #343A40;
     border: solid 1px #515556;
+     
 }
 
 #notifications_list:hover {

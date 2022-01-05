@@ -60,8 +60,12 @@ class Post(FlaskForm):
 
 
 class AddFriend(FlaskForm):
-    submit = SubmitField('Add Friend')
+    submit = SubmitField('Inivte Friend')
 
 
 class AcceptFriend(FlaskForm):
-    submit = SubmitField('accept')
+    accept = SubmitField('Accept')
+    discard = SubmitField('Discard')     
+
+
+
