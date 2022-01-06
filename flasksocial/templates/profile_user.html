@@ -27,8 +27,8 @@
 {% endblock %}
 
 {% block content %}
-    {% if user %}
-        <div class="container" style="position: absolute; padding-top: 75px;">
+    {% if user %}    
+        <div class="container" style="position: absolute; padding-top: 75px;">            
             <div id="content" class="content p-0">
                 <div class="profile-header" style="background: url({{ url_for('static', filename='images/default/M3AlOLH.jpg') }}) center no-repeat;">
                     <div class="profile-header-cover"></div>
@@ -41,7 +41,7 @@
                             <h4 class="m-t-sm" style="margin-bottom: 95px;">{{ user.firstname }} {{ user.lastname }}</h4>
                             <form action="{{ url_for('user_profile', username=user.username) }}" method="POST" style="width: 48vw;">
                                 <div>
-                                    {{ form.submit(class="btn btn-dark", style="background-color: #28a745") }}
+                                    {{ form.submit(class="btn btn-dark", style="background-color: #28a745") }}                                   
                                 </div>
                                 {{ form.csrf_token }}
                             </form>
@@ -148,7 +148,7 @@
                                         {% endif %}
                                     {% endfor %}
                                 </li>
-                                </ul>
+                                </ul>                                
                             </div>
                         </div>
                     </div>

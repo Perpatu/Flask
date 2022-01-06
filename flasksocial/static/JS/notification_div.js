@@ -1,9 +1,11 @@
 document.addEventListener('mouseup', function(e) {
-    let container = document.getElementById('notifications_list');
-    if (!container.contains(e.target)) {
-        container.style.display = 'none';
+    let container_list = document.getElementById('notifications_list');   
+    if (!container_list.contains(e.target)) {
+        container_list.style.display = 'none';
     }
 });
 
 function showDiv() {
-   document.getElementById('notifications_list').style.display = "block";}
+   document.getElementById('notifications_list').style.display = "block";
+   
+}

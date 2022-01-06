@@ -65,7 +65,4 @@ class AddFriend(FlaskForm):
 
 class AcceptFriend(FlaskForm):
     accept = SubmitField('Accept')
-    discard = SubmitField('Discard')     
-
-
-
+    discard = SubmitField('Discard')

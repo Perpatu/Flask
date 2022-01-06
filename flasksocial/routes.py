@@ -1,5 +1,4 @@
 from flask import render_template, redirect, url_for, flash, request, jsonify
-from sqlalchemy.sql.elements import Null
 from flasksocial import app, db, conn, login
 from flask_login import login_user, logout_user, login_required, current_user
 from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, AddFriend, AcceptFriend
@@ -27,8 +26,7 @@ def load_user(user_id):
 @app.route('/home', methods=["POST", "GET"])
 def index():
     if not current_user.is_authenticated:
-        reg_form = Registration()
-        login_form = Login()
+        reg_form = Registration()        
         if reg_form.validate_on_submit():
             hashed_password = pbkdf2_sha256.hash(reg_form.password.data)
             user = User(username=reg_form.username.data, email=reg_form.email.data, password=hashed_password)
@@ -36,16 +34,8 @@ def index():
             db.session.commit()
             os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data))
             login_user(user)
-            return redirect(url_for("complete"))
-        elif login_form.validate_on_submit():
-            user = User.query.filter_by(email=login_form.email.data).first()
-            if user and pbkdf2_sha256.verify(login_form.password.data, user.password):
-                login_user(user, remember=login_form.remember.data)
-                flash(f'You have been logged in!', 'success')
-                return redirect(url_for("content"))
-            flash(f'Please check email or password', 'danger')
-            return render_template("login.html", form=login_form)
-        return render_template("home.html", form_reg=reg_form, form_log=login_form)
+            return redirect(url_for("complete"))        
+        return render_template("home.html", form_reg=reg_form)
     flash(f'You are already logged in!', 'info')
     return redirect(url_for("content"))
 
@@ -150,24 +140,24 @@ def user_profile(username):
     friends_id = user.user_id
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
+    cur.execute('SELECT COUNT(friend_id) FROM friends WHERE friend_id=%(friends_id)s',
+                {'friends_id': '{}'.format(friends_id)})
+    number_of_friends = cur.fetchall()[0][0]
+    friends = db.session.query(Friends).filter_by(user_id=friends_id).all()
     if add_friend.validate_on_submit():
         cur.execute(query_empty_check)
         empty = cur.fetchall()[0][0]
         if empty == 0:
             send_invite(current_user_id, friends_id)
         else:
-            send_invite(current_user_id, friends_id)
-        cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
+            cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
                     ' AND friend_id=%(friends_id)s',
                     {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
-        query_result = cur.fetchall()
-        if query_result[0][0] == 1:
-            flash(f'You are already friends', 'info')
-            return redirect(url_for('user_profile', username=user.username))
-    cur.execute('SELECT COUNT(friend_id) FROM friends WHERE friend_id=%(friends_id)s',
-                {'friends_id': '{}'.format(friends_id)})
-    number_of_friends = cur.fetchall()[0][0]
-    friends = db.session.query(Friends).filter_by(user_id=friends_id).all()
+            friend_chcek = cur.fetchall()
+            if friend_chcek[0][0] < 1:
+                send_invite(current_user_id, friends_id)                
+        flash(f'You are already friends', 'info') 
+        return redirect(url_for('user_profile', username=user.username))   
     return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
                            user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
                            friends=friends)

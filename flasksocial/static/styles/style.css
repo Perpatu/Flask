@@ -564,3 +564,72 @@ hr {
   height: 100%;
   width: auto;
 }
+
+.frame_three_dots{    
+    margin-left: 88%;
+    margin-top: -5%;
+    border-radius: 50%;    
+}
+
+.bell_three_dots {    
+    border-radius: 50%; 
+    margin-left: 85%;
+    margin-top: -18%;
+    border-radius: 50%; 
+    width: 40px;
+    height: 40px;    
+}
+
+.three_dots_appearance {
+    position: relative;
+    z-index: 900;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding-left: 20px;    
+    border: none;
+    outline:none;
+    background: url('/static/images/three_dots.svg') no-repeat;    
+}
+
+.bell_three_dots:hover {
+    background-color: gray;    
+}
+
+.three_dots_appearance:focus {
+    background-color: gray;
+    outline:none;
+}
+
+#notifications_list_three_dots {   
+    display: none; 
+    position: absolute;
+    overflow: hidden;
+    width: 100px;
+    height: 50px;
+    right: 30px;
+    padding-top: 10px;
+    background-color: #343A40;
+    border: solid 1px #515556;
+}
+/*#notifications_list_three_dots:hover {
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+#notifications_list_three_dots a {
+    text-decoration: none;
+    color: white;
+    padding-left: 10px;
+}
+
+#notifications_list_three_dots p {
+    margin-top: 15px;
+    padding-left: 10px;
+}
+
+.notifications_list_three_dots {
+    display: inline-flex;
+    width: 100%;
+    padding: 10px;
+}*/

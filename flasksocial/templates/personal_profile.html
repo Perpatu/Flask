@@ -77,13 +77,19 @@
                             {% else %}
                                 {% for friend in friends %}
                                     {% if friend.user %}
-                                        <li>
+                                        <li style="margin-bottom: 11px;">                                            
                                             <a href="/profile/{{ friend.user.username }}">
-                                                <div class="friend-img"><img style="width:100%; height: 100%;" alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }}  /></div>
+                                                <div class="friend-img"><img style="width:100%; height: 100%;" alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }} /></div>
                                                 <div class="friend-info">
-                                                    <p>{{ friend.user.firstname }} {{ friend.user.lastname }}</p>
+                                                    <p>
+                                                        {{ friend.user.firstname }} {{ friend.user.lastname }}   
+                                                                                                            
+                                                    </p>                                          
                                                 </div>
-                                            </a>
+                                            </a>                                            
+                                            <div class="bell_three_dots">
+                                                <button class="three_dots_appearance"></button>
+                                            </div>                                     
                                         </li>
                                     {% else %}
                                         {{ pass }}

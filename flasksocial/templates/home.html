@@ -20,26 +20,12 @@
                             {{ displayField(form_reg.confirm_password, 'Confirm password') }}
                         <div>
                             {{ form_reg.submit(class="btn btn-success", style="background-color: #28a745") }}
-                            <button class="btn btn-success" style="background-color: #28a745" onclick="ChangeHome('register', 'login')"> Login </button>
+                            <a href="/login" class="btn btn-success" style="background-color: #28a745"> Login </a>                                                     
                         </div>
                         {{ form_reg.csrf_token }}
-                        </form>
-                    </div>
-                </div>
-                <div id="login" style="display: none">
-                    <div class="middle" style="top: 40vh">
-                        <h2 style="color: #28a745">Login to our society</h2>
-                        <form method="POST" action="" style="width: 25vw;">
-                            {{ displayField(form_log.email, 'Email', autocomplete='off', autofocus='true') }}
-                            {{ displayField(form_log.password, 'Password') }}
-                            <div>
-                                {{ form_log.submit(class="btn btn-success", style="background-color: #28a745") }}
-                                <button class="btn btn-success" style="background-color: #28a745" onclick="change('register', 'login')"> Register </button>
-                            </div>
-                            {{ form_log.csrf_token }}
-                        </form>
-                    </div>
-                </div>
+                        </form>                                          
+                    </div>                    
+                </div>                
             </div>
         </div>
     </div>
