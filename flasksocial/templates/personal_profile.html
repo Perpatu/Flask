@@ -74,26 +74,26 @@
                             <ul class="friend-list clearfix">
                             {% if number_of_friends == 0 %}
                                 <p>Brak znajomych</p>
-                            {% else %}
-                                {% for friend in friends %}
+                            {% else %}                            
+                                {% for friend in friends %}                                                                
                                     {% if friend.user %}
                                         <li style="margin-bottom: 11px;">                                            
                                             <a href="/profile/{{ friend.user.username }}">
                                                 <div class="friend-img"><img style="width:100%; height: 100%;" alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }} /></div>
-                                                <div class="friend-info">
-                                                    <p>
-                                                        {{ friend.user.firstname }} {{ friend.user.lastname }}   
-                                                                                                            
-                                                    </p>                                          
+                                                <div class="friend-info">                                                    
+                                                    <p>                                                        
+                                                        {{ friend.user.firstname }} {{ friend.user.lastname }} {{ loop.index }}                                                                                                                                                                 
+                                                    </p> 
+                                                                                  
                                                 </div>
                                             </a>                                            
                                             <div class="bell_three_dots">
-                                                <button class="three_dots_appearance"></button>
-                                            </div>                                     
-                                        </li>
+                                                <!--<button class="three_dots_appearance" onclick="showDivListDots()"></button>-->
+                                            </div>                                                                                
+                                        </li>                                       
                                     {% else %}
                                         {{ pass }}
-                                    {% endif %}
+                                    {% endif %}                                                                       
                                 {% endfor %}
                             {% endif %}
                             </ul>

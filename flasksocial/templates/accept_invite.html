@@ -1,3 +1,8 @@
+<div style="margin-left: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: grey">
+    <h4>Notifications</h4>
+    <hr>
+</div>
+
 {% for invitation in users_inivites %}
     {% if user.filter_by(user_id=invitation[0]).first().user_id %}
         <div class="notifications_list_background">

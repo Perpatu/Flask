@@ -1,8 +1,10 @@
 from flask import render_template, redirect, url_for, flash, request, jsonify
-from flasksocial import app, db, conn, login
+from flasksocial import app, db, conn, login, url_safe
 from flask_login import login_user, logout_user, login_required, current_user
+from flasksocial.mail_body import Send 
 from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, AddFriend, AcceptFriend
 from flasksocial.models import User, Friends
+from itsdangerous import SignatureExpired
 from passlib.hash import pbkdf2_sha256
 import datetime
 import psycopg2
@@ -32,12 +34,29 @@ def index():
             user = User(username=reg_form.username.data, email=reg_form.email.data, password=hashed_password)
             db.session.add(user)
             db.session.commit()
-            os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data))
+            os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data))            
+            Send.confirmation_mail(reg_form.email.data, reg_form.username.data)
             login_user(user)
-            return redirect(url_for("complete"))        
+            return redirect(url_for("confirm_wait"))        
         return render_template("home.html", form_reg=reg_form)
     flash(f'You are already logged in!', 'info')
     return redirect(url_for("content"))
+
+
+@app.route('/confirm_wait')
+def confirm_wait():
+    is_confirm = db.session.query(User).filter_by(user_id=current_user.get_id()).first().confirm_email
+    return str(is_confirm)
+
+@app.route('/confirm_email/<token>')
+def confirm_email(token):    
+    try:
+        url_safe.loads(token, salt='email-confirm', max_age=300)
+    except SignatureExpired:
+        return "<h1>Token is expired</h1>"
+    db.session.query(User).filter_by(user_id=current_user.get_id()).update({User.confirm_email: True}, synchronize_session=False)
+    db.session.commit()
+    return redirect(url_for("complete"))
 
 
 @app.route('/complete', methods=["POST", "GET"])
@@ -203,7 +222,7 @@ def notifications():
     current_user_id = current_user.get_id()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute('SELECT COUNT(invite) FROM friends WHERE user_id=' + current_user_id)
-    number_of_notifications = cur.fetchall()[0][0]    
+    number_of_notifications = cur.fetchall()[0][0]  
     return jsonify(number_of_notifications)
 
 

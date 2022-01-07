@@ -522,6 +522,7 @@ hr {
     padding-top: 10px;
     background-color: #343A40;
     border: solid 1px #515556;
+    opacity: 0.99;
      
 }
 
@@ -606,13 +607,13 @@ hr {
     position: absolute;
     overflow: hidden;
     width: 100px;
-    height: 50px;
-    right: 30px;
+    height: 50px;    
     padding-top: 10px;
     background-color: #343A40;
     border: solid 1px #515556;
 }
-/*#notifications_list_three_dots:hover {
+
+#notifications_list_three_dots:hover {
     overflow: auto;
     overflow-x: hidden;
 }
@@ -628,8 +629,4 @@ hr {
     padding-left: 10px;
 }
 
-.notifications_list_three_dots {
-    display: inline-flex;
-    width: 100%;
-    padding: 10px;
-}*/
+

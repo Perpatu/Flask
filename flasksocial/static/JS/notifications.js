@@ -1,6 +1,6 @@
 const page_title = document.title;
 
-function loadNotifications() {
+function loadNoumberNotifications() {
     fetch('/notifications')
         .then((response) => {
             return response.json();
@@ -11,26 +11,26 @@ function loadNotifications() {
             if (parseInt(data) === 0) {
                 document.title = page_title;
                 $('#notification').remove();
-                bell_activeContainer.innerHTML = "<button class=\"bell_no_active_appearance\" onclick=\"showDiv()\"></button>";
+                bell_activeContainer.innerHTML = "<button class=\"bell_no_active_appearance\" onclick=\"showDivList()\"></button>";
             }
 
             else if (parseInt(data) > 0) {
                 $('.frame').append($('<div id="notification"></div>'));
                 notificationContainer.innerHTML = data;
-                bell_activeContainer.innerHTML = "<button class=\"bell_active_appearance\" onclick=\"showDiv()\"></button>";
+                bell_activeContainer.innerHTML = "<button class=\"bell_active_appearance\" onclick=\"showDivList()\"></button>";
                 document.title = page_title + ' (' + data + ')';
             }
 
             else if (parseInt(data) > 9){
                 $('.frame').append($('<div id="notification"></div>'));
                 notificationContainer.innerHTML = "9+";
-                bell_activeContainer.innerHTML = "<button class=\"bell_active_appearance\" onclick=\"showDiv()\"></button>";
+                bell_activeContainer.innerHTML = "<button class=\"bell_active_appearance\" onclick=\"showDivList()\"></button>";
                 document.title = page_title + ' (' + data + ')';
             }
         });
 }
 
-function load_invite_notifications(){
+function loadInviteNotifications(){
     $.ajax({
         url:"/accept_invite",
         method:"POST",
@@ -41,8 +41,8 @@ function load_invite_notifications(){
     });
 }
 
-load_invite_notifications();
-setInterval(load_invite_notifications,5000);
+loadInviteNotifications();
+setInterval(loadInviteNotifications,5000);
 
-loadNotifications();
-setInterval(loadNotifications, 5000);
+loadNoumberNotifications();
+setInterval(loadNoumberNotifications, 5000);

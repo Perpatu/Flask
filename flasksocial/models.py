@@ -10,8 +10,9 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     firstname = db.Column(db.String(100), nullable=False, default="")
     lastname = db.Column(db.String(100), nullable=False, default="")
-    date_of_birth = db.Column(db.String(30), nullable=False, default="")
+    date_of_birth = db.Column(db.String(30), nullable=False, default="")    
     image_file = db.Column(db.String(50), nullable=False, default='default.jpg')
+    confirm_email = db.Column(db.Boolean, nullable=False, default=False)
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.firstname}', '{self.lastname}', {self.user_id})"
