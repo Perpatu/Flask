@@ -12,13 +12,9 @@ class Send():
         link = url_for('confirm_email', token=token, _external=True)
 
         msg.html =  "<h2>Confirm your e-mail</h2>" \
-                    "<hr>"\
-                    "<b style='font-size: large;' >Hello {} in our society!</b>" \
-                    "<p>Just clik on the following link to activate your account: {}</p> "\
+                    "<hr>" \
+                    "<b style='font-size: large;'>Hello {} in our society!</b>" \
+                    "<p>Just clik on the following link to activate your account: {}</p>" \
                     "<p>If it\'s not your email ({}) just delete the messeage.</p>".format(username, link, email)     
 
         mail.send(msg)
-
-
-"""with app.open_resource('static\images\close.png') as close:
-            msg.attach('close.png', 'image/png', close.read())"""

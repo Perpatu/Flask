@@ -18,6 +18,10 @@ def send_invite(current_user_id, friends_id):
     db.session.add(send_invite_to_other_user)    
     db.session.commit()
 
+def confirm():
+    if_confirm = db.session.query(User).filter_by(user_id=current_user.get_id()).first().confirm_email
+    return if_confirm
+
 
 @login.user_loader
 def load_user(user_id):
@@ -44,9 +48,8 @@ def index():
 
 
 @app.route('/confirm_wait')
-def confirm_wait():
-    is_confirm = db.session.query(User).filter_by(user_id=current_user.get_id()).first().confirm_email
-    return str(is_confirm)
+def confirm_wait():    
+    return str(confirm())
 
 @app.route('/confirm_email/<token>')
 def confirm_email(token):    
@@ -61,20 +64,22 @@ def confirm_email(token):
 
 @app.route('/complete', methods=["POST", "GET"])
 @login_required
-def complete():
-    if not current_user.is_authenticated:
-        return redirect(url_for("login"))
-    complete_form = Complete()
-    if complete_form.validate_on_submit():
-        db.session.query(User).filter(User.user_id == current_user.get_id()).update(
-            {User.firstname: complete_form.firstname.data}, synchronize_session=False)
-        db.session.query(User).filter(User.user_id == current_user.get_id()).update(
-            {User.lastname: complete_form.lastname.data}, synchronize_session=False)
-        db.session.query(User).filter(User.user_id == current_user.get_id()).update(
-            {User.date_of_birth: complete_form.date_of_birth.data}, synchronize_session=False)
-        db.session.commit()
-        return redirect(url_for("content"))
-    return render_template("complete.html", form=complete_form)
+def complete():    
+    if confirm() == True:
+        if not current_user.is_authenticated:
+            return redirect(url_for("login"))
+        complete_form = Complete()
+        if complete_form.validate_on_submit():
+            db.session.query(User).filter(User.user_id == current_user.get_id()).update(
+                {User.firstname: complete_form.firstname.data}, synchronize_session=False)
+            db.session.query(User).filter(User.user_id == current_user.get_id()).update(
+                {User.lastname: complete_form.lastname.data}, synchronize_session=False)
+            db.session.query(User).filter(User.user_id == current_user.get_id()).update(
+                {User.date_of_birth: complete_form.date_of_birth.data}, synchronize_session=False)
+            db.session.commit()
+            return redirect(url_for("content"))    
+        return render_template("complete.html", form=complete_form)        
+    return "Account not active"
 
 
 @app.route("/login", methods=["POST", "GET"])
@@ -114,92 +119,99 @@ def delete():
 @app.route("/content", methods=["POST", "GET"])
 @login_required
 def content():
-
-    return render_template("content.html")
+    if confirm() == True:
+        return render_template("content.html")
+    return "Account not active"
 
 
 @app.route("/settings", methods=["POST", "GET"])
 @login_required
 def settings():
-    if current_user.is_authenticated:
-        change_password_form = ChangePassword()
-        change_name_form = ChangeName()
-        if change_password_form.validate_on_submit():
-            hashed_new_password = pbkdf2_sha256.hash(change_password_form.new_password.data)
-            if pbkdf2_sha256.verify(change_password_form.current_password.data,
-                                    db.session.query(User).filter_by(user_id=current_user.get_id()).first().password):
-                db.session.query(User).filter(User.user_id == current_user.get_id()).update(
-                    {User.password: hashed_new_password}, synchronize_session=False)
+    if confirm() == True:
+        if current_user.is_authenticated:
+            change_password_form = ChangePassword()
+            change_name_form = ChangeName()
+            if change_password_form.validate_on_submit():
+                hashed_new_password = pbkdf2_sha256.hash(change_password_form.new_password.data)
+                if pbkdf2_sha256.verify(change_password_form.current_password.data,
+                                        db.session.query(User).filter_by(user_id=current_user.get_id()).first().password):
+                    db.session.query(User).filter(User.user_id == current_user.get_id()).update(
+                        {User.password: hashed_new_password}, synchronize_session=False)
+                    db.session.commit()
+                    logout_user()
+                    flash(f'Your password has been changed', 'success')
+                    return redirect(url_for("login"))
+                flash(f'Your current password is not correct', 'warning')
+                return render_template("settings.html", form=change_password_form, data=db)
+            elif change_name_form.validate_on_submit():
+                new_firstname = change_name_form.new_name.data
+                db.session.query(User).filter(User.user_id == current_user.get_id()).update({User.firstname: new_firstname})
                 db.session.commit()
-                logout_user()
-                flash(f'Your password has been changed', 'success')
-                return redirect(url_for("login"))
-            flash(f'Your current password is not correct', 'warning')
-            return render_template("settings.html", form=change_password_form, data=db)
-        elif change_name_form.validate_on_submit():
-            new_firstname = change_name_form.new_name.data
-            db.session.query(User).filter(User.user_id == current_user.get_id()).update({User.firstname: new_firstname})
-            db.session.commit()
-            flash(f'Your name has been changed', 'success')
-            return redirect(url_for("settings"))
-        return render_template("settings.html", form=change_password_form, form_name=change_name_form, db=db, User=User)
-    flash(f'You need to log in', 'warning')
-    return redirect(url_for("login"))
+                flash(f'Your name has been changed', 'success')
+                return redirect(url_for("settings"))
+            return render_template("settings.html", form=change_password_form, form_name=change_name_form, db=db, User=User)
+        flash(f'You need to log in', 'warning')
+        return redirect(url_for("login"))    
+    return "Account not active"
 
 
 @app.route("/profile/<username>", methods=["POST", "GET"])
 @login_required
 def user_profile(username):
-    add_friend = AddFriend()
-    user = db.session.query(User).filter_by(username=username).first()
-    directory_def = os.listdir('flasksocial/static/images/default')
-    directory_img = os.listdir('flasksocial/static/users_files')
-    img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
-    current_user_id = current_user.get_id()
-    friends_id = user.user_id
-    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
-    cur.execute('SELECT COUNT(friend_id) FROM friends WHERE friend_id=%(friends_id)s',
-                {'friends_id': '{}'.format(friends_id)})
-    number_of_friends = cur.fetchall()[0][0]
-    friends = db.session.query(Friends).filter_by(user_id=friends_id).all()
-    if add_friend.validate_on_submit():
-        cur.execute(query_empty_check)
-        empty = cur.fetchall()[0][0]
-        if empty == 0:
-            send_invite(current_user_id, friends_id)
-        else:
-            cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
-                    ' AND friend_id=%(friends_id)s',
-                    {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
-            friend_chcek = cur.fetchall()
-            if friend_chcek[0][0] < 1:
-                send_invite(current_user_id, friends_id)                
-        flash(f'You are already friends', 'info') 
-        return redirect(url_for('user_profile', username=user.username))   
-    return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
-                           user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
-                           friends=friends)
+    if confirm() == True:
+        add_friend = AddFriend()
+        user = db.session.query(User).filter_by(username=username).first()
+        directory_def = os.listdir('flasksocial/static/images/default')
+        directory_img = os.listdir('flasksocial/static/users_files')
+        img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
+        current_user_id = current_user.get_id()
+        friends_id = user.user_id
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
+        cur.execute('SELECT COUNT(friend_id) FROM friends WHERE friend_id=%(friends_id)s',
+                    {'friends_id': '{}'.format(friends_id)})
+        number_of_friends = cur.fetchall()[0][0]
+        friends = db.session.query(Friends).filter_by(user_id=friends_id).all()
+        if add_friend.validate_on_submit():
+            cur.execute(query_empty_check)
+            empty = cur.fetchall()[0][0]
+            if empty == 0:
+                send_invite(current_user_id, friends_id)
+            else:
+                cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
+                        ' AND friend_id=%(friends_id)s',
+                        {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
+                friend_chcek = cur.fetchall()
+                if friend_chcek[0][0] < 1:
+                    send_invite(current_user_id, friends_id)                
+            flash(f'You are already friends', 'info') 
+            return redirect(url_for('user_profile', username=user.username))   
+        return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
+                            user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
+                            friends=friends)
+    return "Account not active"
 
 
 @app.route("/profile")
 @login_required
 def profile():
-    if current_user.is_authenticated:
-        directory_def = os.listdir('flasksocial/static/images/default')
-        directory_img = os.listdir('flasksocial/static/users_files')
-        img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
-        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        current_user_id = current_user.get_id()
-        user = db.session.query(User).filter_by(user_id=current_user_id).first()
-        cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(friends_id)s',
-                    {'friends_id': '{}'.format(current_user_id)})
-        number_of_friends = cur.fetchall()[0][0]
-        friends = db.session.query(Friends).filter_by(user_id=current_user_id).all()        
-    else:
-        return redirect(url_for("login"))
-    return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
-                           directory_img=directory_img, user=user, friends=friends, number_of_friends=number_of_friends)
+    if confirm() == True:
+        if current_user.is_authenticated:
+            directory_def = os.listdir('flasksocial/static/images/default')
+            directory_img = os.listdir('flasksocial/static/users_files')
+            img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
+            cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            current_user_id = current_user.get_id()
+            user = db.session.query(User).filter_by(user_id=current_user_id).first()
+            cur.execute('SELECT COUNT(friend_id) FROM friends WHERE user_id=%(friends_id)s',
+                        {'friends_id': '{}'.format(current_user_id)})
+            number_of_friends = cur.fetchall()[0][0]
+            friends = db.session.query(Friends).filter_by(user_id=current_user_id).all()        
+        else:
+            return redirect(url_for("login"))
+        return render_template("personal_profile.html", img_file=img_file, directory=directory_def,
+                            directory_img=directory_img, user=user, friends=friends, number_of_friends=number_of_friends)
+    return "Account not active"
 
 
 @app.route("/ajaxlivesearch", methods=["POST", "GET"])
