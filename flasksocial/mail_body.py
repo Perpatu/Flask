@@ -18,3 +18,7 @@ class Send():
                     "<p>If it\'s not your email ({}) just delete the messeage.</p>".format(username, link, email)     
 
         mail.send(msg)
+
+
+    def invite_mail():
+        pass
