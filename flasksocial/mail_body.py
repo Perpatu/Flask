@@ -20,5 +20,11 @@ class Send():
         mail.send(msg)
 
 
-    def invite_mail():
-        pass
+    def invite_mail(email, username, someone):
+
+        msg = Message('Hello there, someone send you invite to friends list', recipients=[email])
+        link = url_for('user_profile', username=someone)
+
+        msg.html = "<p>Hello {}, <a href=\'{}\' target=\'_blank\'>user</a> {} wants to be your friend.".format(username, someone, link) 
+
+        mail.send(msg)

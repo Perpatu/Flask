@@ -59,8 +59,9 @@ class Post(FlaskForm):
     submit = SubmitField('Share')
 
 
-class AddFriend(FlaskForm):
-    submit = SubmitField('Inivte Friend')
+class FriendsForm(FlaskForm):
+    invite = SubmitField('Invite Friend')
+    delete = SubmitField('Delete from friends')
 
 
 class AcceptFriend(FlaskForm):

@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, flash, request, jsonify
 from flasksocial import app, db, conn, login, url_safe
 from flask_login import login_user, logout_user, login_required, current_user
 from flasksocial.mail_body import Send 
-from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, AddFriend, AcceptFriend
+from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, FriendsForm, AcceptFriend
 from flasksocial.models import User, Friends
 from itsdangerous import SignatureExpired
 from passlib.hash import pbkdf2_sha256
@@ -159,36 +159,57 @@ def settings():
 @login_required
 def user_profile(username):
     if confirm() == True:
-        add_friend = AddFriend()
+        friend_form = FriendsForm()
         user = db.session.query(User).filter_by(username=username).first()
         directory_def = os.listdir('flasksocial/static/images/default')
         directory_img = os.listdir('flasksocial/static/users_files')
         img_file = url_for('static', filename='images/profile_picture/' + current_user.image_file)
         current_user_id = current_user.get_id()
-        friends_id = user.user_id
+        friend_id = user.user_id
+        friends = db.session.query(Friends).filter_by(user_id=friend_id).all()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        query_empty_check = "SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t"
+
         cur.execute('SELECT COUNT(friend_id) FROM friends WHERE friend_id=%(friends_id)s',
-                    {'friends_id': '{}'.format(friends_id)})
+                    {'friends_id': '{}'.format(friend_id)})
         number_of_friends = cur.fetchall()[0][0]
-        friends = db.session.query(Friends).filter_by(user_id=friends_id).all()
-        if add_friend.validate_on_submit():
-            cur.execute(query_empty_check)
-            empty = cur.fetchall()[0][0]
-            if empty == 0:
-                send_invite(current_user_id, friends_id)
-            else:
-                cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
-                        ' AND friend_id=%(friends_id)s',
-                        {'current_user_id': '{}'.format(current_user_id), 'friends_id': '{}'.format(friends_id)})
-                friend_chcek = cur.fetchall()
-                if friend_chcek[0][0] < 1:
-                    send_invite(current_user_id, friends_id)                
-            flash(f'You are already friends', 'info') 
-            return redirect(url_for('user_profile', username=user.username))   
+
+        cur.execute('SELECT COUNT(DISTINCT friend_id) FROM friends WHERE user_id=%(current_user_id)s'
+                    ' AND friend_id=%(friend_id)s',
+                    {'current_user_id': '{}'.format(current_user_id), 'friend_id': '{}'.format(friend_id)})
+        friend_chcek = cur.fetchall()[0][0]
+
+        cur.execute('SELECT COUNT(DISTINCT invite) FROM friends WHERE user_id=%(current_user_id)s'
+                    ' AND invite=%(invite)s',
+                    {'current_user_id': '{}'.format(friend_id), 'invite': '{}'.format(current_user_id)})
+        invite_chcek = cur.fetchall()[0][0]
+
+        cur.execute("SELECT count(*) FROM (SELECT 1 FROM friends LIMIT 1) AS t")
+        empty = cur.fetchall()[0][0]
+        
+        print("current_user_id: ", current_user_id)
+        print("friend_id: ", friend_id)
+
+        if friend_form.validate_on_submit():
+            if friend_form.invite.data:
+                if empty == 0:
+                    send_invite(current_user_id, friend_id)
+                else:                
+                    if invite_chcek == 1:
+                        flash(f'You are already send invite to {username}', 'info')
+                    elif friend_chcek == 1:
+                        flash(f'You are already friends with {username}', 'info')
+                    elif (invite_chcek + friend_chcek) == 0: 
+                        send_invite(current_user_id, friend_id)                        
+                return redirect(url_for('user_profile', username=user.username))
+            elif friend_form.delete.data:                
+                db.session.query(Friends).filter_by(user_id=current_user_id, friend_id=friend_id).delete()
+                db.session.query(Friends).filter_by(user_id=friend_id, friend_id=current_user_id).delete()
+                db.session.commit()
+                flash(f'You are deleted {username} from friends list', 'info')
+                return redirect(url_for('user_profile', username=user.username))
         return render_template("profile_user.html", img_file=img_file, directory=directory_def, directory_img=directory_img,
-                            user=user, username=username, form=add_friend, number_of_friends=number_of_friends,
-                            friends=friends)
+                            user=user, username=username, form=friend_form, number_of_friends=number_of_friends,
+                            friends=friends, friend_chcek=friend_chcek)
     return "Account not active"
 
 

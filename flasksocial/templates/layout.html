@@ -21,8 +21,7 @@
     
 </head>
 <body>
-    {% if current_user.is_authenticated %}
-    <a name="top"></a>
+    {% if current_user.is_authenticated %}    
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="position: fixed; z-index: 999; width: 100%; border-top: 1px solid #515556; border-bottom: 1px solid #515556;">
             <a class="navbar-brand" href="/" style="color: #28a745">Navbar</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,15 +61,15 @@
         <div class="container">
             
             {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}" style="left: 5%; border: solid red 5px;">
-                            <a href="#top"><button type="button" class="close" data-dismiss="alert">&times;</button>
-                            <span>{{ message }}</span>
-                        </div>
-                    {% endfor %}
-                {% endif %} 
-            {% endwith %}
+                {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" style="position: fixed; z-index: 1000; width: 700px; margin-left: 225px; margin-top: 50px;">
+                                <a><button type="button" class="close" data-dismiss="alert">&times;</button>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %} 
+                {% endwith %}
             {% block content %}{% endblock %}    
         </div>
         

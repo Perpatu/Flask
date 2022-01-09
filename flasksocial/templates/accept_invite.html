@@ -9,7 +9,7 @@
             <a href="{{ user.filter_by(user_id=invitation[0]).first().username }}">
                 <div class="image_div_notifications">
                     <div class="image-cropper">
-                        <img alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }}/>
+                        <img alt="" src="{{ url_for('static', filename='images/default/M3AlOLH.jpg') }}"/>
                     </div>
                     <p>
                         {{ user.filter_by(user_id=invitation[0]).first().firstname }}

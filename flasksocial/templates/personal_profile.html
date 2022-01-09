@@ -82,14 +82,11 @@
                                                 <div class="friend-img"><img style="width:100%; height: 100%;" alt="" src={{ url_for('static', filename='images/default/M3AlOLH.jpg') }} /></div>
                                                 <div class="friend-info">                                                    
                                                     <p>                                                        
-                                                        {{ friend.user.firstname }} {{ friend.user.lastname }} {{ loop.index }}                                                                                                                                                                 
+                                                        {{ friend.user.firstname }} {{ friend.user.lastname }}                                                                                                                                                               
                                                     </p> 
                                                                                   
                                                 </div>
-                                            </a>                                            
-                                            <div class="bell_three_dots">
-                                                <!--<button class="three_dots_appearance" onclick="showDivListDots()"></button>-->
-                                            </div>                                                                                
+                                            </a>                                                                                                                
                                         </li>                                       
                                     {% else %}
                                         {{ pass }}

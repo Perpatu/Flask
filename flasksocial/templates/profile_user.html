@@ -40,12 +40,21 @@
 
                         <div class="profile-header-info">
                             <h4 class="m-t-sm" style="margin-bottom: 95px;">{{ user.firstname }} {{ user.lastname }}</h4>
-                            <form action="{{ url_for('user_profile', username=user.username) }}" method="POST" style="width: 48vw;">
-                                <div>
-                                    {{ form.submit(class="btn btn-dark", style="background-color: #28a745") }}                                   
-                                </div>
-                                {{ form.csrf_token }}
-                            </form>
+                            {% if friend_chcek == 0 %}
+                                <form action="{{ url_for('user_profile', username=user.username) }}" method="POST" style="width: 48vw;">
+                                    <div>
+                                        {{ form.invite(class="btn btn-success") }}                                                                     
+                                    </div>
+                                    {{ form.csrf_token }}
+                                </form>
+                            {% else %}
+                                <form action="{{ url_for('user_profile', username=user.username) }}" method="POST" style="width: 48vw;">
+                                    <div>
+                                        {{ form.delete(class="btn btn-danger") }}                                                                     
+                                    </div>
+                                    {{ form.csrf_token }}
+                                </form>
+                            {% endif %}
                         </div>
                     </div>
 
