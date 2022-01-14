@@ -41,7 +41,3 @@ url_safe = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 
 from flasksocial import routes
-
-
-
-
