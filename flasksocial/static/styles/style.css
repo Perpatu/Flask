@@ -626,7 +626,51 @@ hr {
 
 #notifications_list_three_dots p {
     margin-top: 15px;
-    padding-left: 10px;
+    padding-left: 10px;     
 }
 
 
+.grid-container {
+    display: grid;
+    grid-template-columns: 20% 60% 20%;    
+    margin-left: 5px;
+    margin-right: 5px;    
+  }
+
+.grid-item {
+    overflow-y: hidden;
+    /*border: 1px solid rgba(0, 0, 0, 0.8);*/
+    color: white;
+    text-align: center;
+  }
+
+.grid-item-left{
+    position: fixed;
+    height: 300px;
+    width: 300px;
+    overflow-y: hidden;
+}
+
+.grid-item-left:hover{
+    overflow-y: scroll;
+}
+
+.grid-item:hover{
+      overflow-y: auto;
+  }
+
+.create-post {
+    width: 300px;    
+    background-color: gray;
+    padding-left: -50px;    
+}
+
+.post-content{
+    background-color: bisque;   
+    max-height: 300px;
+    overflow-y: hidden;
+}
+
+.post-content:hover{
+    overflow-y: scroll;
+}

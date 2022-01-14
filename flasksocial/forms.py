@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, InputRequired
 from wtforms.fields.html5 import DateField
-from flasksocial.models import User
+from flasksocial.models import Comment, User
 
 
 class Registration(FlaskForm):
@@ -54,9 +54,14 @@ class ChangeName(FlaskForm):
     submit = SubmitField('Change name')
 
 
-class Post(FlaskForm):
+class PostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    submit = SubmitField('Post')
+
+class PostCommentForm(FlaskForm):
     content = TextAreaField('content', validators=[DataRequired()])
-    submit = SubmitField('Share')
+    submit = SubmitField("Comment")
 
 
 class FriendsForm(FlaskForm):

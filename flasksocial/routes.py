@@ -2,8 +2,8 @@ from flask import render_template, redirect, url_for, flash, request, jsonify
 from flasksocial import app, db, conn, login, url_safe
 from flask_login import login_user, logout_user, login_required, current_user
 from flasksocial.mail_body import Send 
-from flasksocial.forms import Registration, Complete, Login, ChangePassword, Post, ChangeName, FriendsForm, AcceptFriend
-from flasksocial.models import User, Friends
+from flasksocial.forms import Registration, Complete, Login, ChangePassword, PostForm, PostCommentForm, ChangeName, FriendsForm, AcceptFriend
+from flasksocial.models import User, Friends, Post
 from itsdangerous import SignatureExpired
 from passlib.hash import pbkdf2_sha256
 import datetime
@@ -38,7 +38,7 @@ def index():
             user = User(username=reg_form.username.data, email=reg_form.email.data, password=hashed_password)
             db.session.add(user)
             db.session.commit()
-            os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data))            
+            os.makedirs('flasksocial/static/users_files/' + str(reg_form.username.data))                  
             Send.confirmation_mail(reg_form.email.data, reg_form.username.data)
             login_user(user)
             return redirect(url_for("confirm_wait"))        
@@ -120,7 +120,20 @@ def delete():
 @login_required
 def content():
     if confirm() == True:
-        return render_template("content.html")
+        post_form = PostForm()        
+        current_user_id = current_user.get_id()            
+        try:
+            posts = db.session.query(Post)            
+        except:
+            pass
+        #print(datetime.datetime.now()-posts[2].date_posted)
+        if post_form.validate_on_submit():
+            post = Post(title=post_form.title.data, content=post_form.content.data, user_id=current_user.get_id())            
+            db.session.add(post)
+            db.session.commit()                      
+            flash('Your post has been created!', 'success')
+            return redirect(url_for('content'))         
+        return render_template("content.html", form=post_form, posts=posts, now=datetime.datetime.utcnow())
     return "Account not active"
 
 
@@ -291,6 +304,11 @@ def accept_invite():
         return redirect(url_for("profile"))       
     return jsonify({'htmlresponse': render_template('accept_invite.html', db=db, user=user, users_inivites=users_inivites,
                                                                           accept_form=accept_friend_form)})
+
+@app.route('/test')
+def test():
+    Send.confirmation_mail('perpatussss@gmail.com', 'ktos')
+    return 'cos'
 
 
 """@app.route("/content")
