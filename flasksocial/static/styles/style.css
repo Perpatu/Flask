@@ -1,5 +1,6 @@
 body {
   background-color: #383a59;
+  overflow-x: hidden;
 }
 
 .middle {
@@ -394,6 +395,71 @@ body .fc-widget-header a {
     margin: 0;
 }
 
+
+
+
+
+
+.friend-list-content {
+    padding-right: 20px;
+    list-style-type: none;
+}
+.friend-list-content > li {    
+    width: 100%;
+}
+.friend-list-content > li > a {
+    display: block;
+    text-decoration: none;
+    color: white;
+    padding: 0.625rem;
+    margin: 1px;    
+}
+
+.friend-list-content > li > a:after,
+.friend-list-content > li > a:before {
+    content: "";
+    display: table;
+    clear: both;
+}
+.friend-list-content .friend-img {
+    float: left;
+    width: 3rem;
+    height: 3rem;
+    overflow: hidden;
+    background: #efeff4;
+}
+.friend-list-content .friend-info {
+    margin-left: 3.625rem;
+}
+.friend-list-content .friend-info h4 {
+    margin: 0.3125rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.friend-list-content .friend-info p {
+    color: #666;
+    padding-top: 10px;
+}
+
+.friend-list-content > li:hover{
+    background-color: #565877;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .projects {
   position: absolute;
   outline:none;
@@ -516,7 +582,7 @@ hr {
     display: none;
     position: absolute;
     overflow: hidden;
-    width: 360px;
+    width: 400px;
     height: 500px;
     right: 30px;
     padding-top: 10px;
@@ -644,20 +710,42 @@ hr {
     text-align: center;
   }
 
-.grid-item-left{
+.grid-item-right{    
+    direction: rtl;
     position: fixed;
-    height: 300px;
-    width: 300px;
+    max-height: 100%;
+    width: 300px;    
+    scroll-padding: revert;
     overflow-y: hidden;
+    overflow-x: hidden;
 }
 
-.grid-item-left:hover{
-    overflow-y: scroll;
+.grid-item-right:hover{
+    overflow-y: scroll;    
+}
+
+
+.grid-item-right::-webkit-scrollbar {
+    width: 10px;    
+}
+
+.grid-item-right::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    background: #f1f1f1;     
+}
+
+.grid-item-right::-webkit-scrollbar-thumb {
+    background-clip: padding-box;
+    background: #888;      
+}  
+
+.grid-item-right::-webkit-scrollbar-thumb:hover {
+    background: #555;    
 }
 
 .grid-item:hover{
-      overflow-y: auto;
-  }
+    overflow-y: auto;
+}
 
 .create-post {
     width: 300px;    
@@ -673,4 +761,25 @@ hr {
 
 .post-content:hover{
     overflow-y: scroll;
+}
+
+.commentarea{
+    width: 90%;
+    height: 35px;
+    border-radius: 15px;
+    padding-left: 15px;
+    padding-top: 8px;
+    font-size: small;
+    resize: none;
+    overflow: hidden;
+}
+
+.link{
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.link:hover{
+    color: black;
 }

@@ -17,132 +17,167 @@
 
 {% block contentb %}
 
-    <div style="padding-top: 80px;">
+  <div style="padding-top: 80px;">
+    <div class="grid-container">
 
-        <div class="grid-container">
+      <div class="grid-item">
+        <div class="grid-item-side">
+          <div style="position: absolute;">            
+          </div>
+        </div>
+      </div>
 
-            <div class="grid-item" >
-              <div class="grid-item-left">
-                <div style="position: absolute;"> 
-                <p >asjklfhaosf</p>                
-              </div>
-              </div>
-                
-             
-            </div>
 
-            <div class="grid-item" style="color: black;">              
-                <button type="button" class="btn btn-outline-dark create-post" data-toggle="modal" data-target="#exampleModalCenter">
-                  Create post
-                </button>
-                {% if posts %}
-                  {% for post in posts %}
-                    <div class="container mt-5 mb-5">
-                      <div class="row d-flex align-items-center justify-content-center">
-                          <div class="col-md-6">
-                              <div class="card">
-                                  <div class="d-flex justify-content-between p-2 px-3">
-                                      <div class="d-flex flex-row align-items-center"> <img src="{{ url_for('static', filename='images/default/M3AlOLH.jpg') }}" width="50px" height="50px" class="rounded-circle">
-                                          <div class="d-flex flex-column ml-2"> <span class="font-weight-bold">{{ post.user.firstname }} {{ post.user.lastname }}</span></div>
+
+      <div class="grid-item">
+        <button type="button" class="btn btn-outline-dark create-post" data-toggle="modal" data-target="#create-post">
+          Create post
+        </button>      
+        
+        {% if posts %}                  
+          {% for post in posts %}            
+              <div class="container mt-5 mb-5">
+                <div class="row d-flex align-items-center justify-content-center">
+                  <div class="col-md-7">
+                    <div class="card" style="color: black;">
+                      <div class="d-flex justify-content-between p-2 px-3">
+                        <div class="d-flex flex-row align-items-center"> <a href="/profile/{{ post.user.username }}"><img src="{{ url_for('static', filename='images/default/M3AlOLH.jpg') }}" width="50px" height="50px" class="rounded-circle"></a>
+                          <a href="/profile/{{ post.user.username }}" style="text-decoration: none; color: black;"><div class="d-flex flex-column ml-2"> <span class="font-weight-bold">{{ post.user.firstname }} {{ post.user.lastname }}</span></div></a>
+                        </div>
+                        {% set date_minutes_float_post = (now - post.date_posted).total_seconds() // 60 %}
+                        {% set date_hours_float_post = (now - post.date_posted).total_seconds() // 3600 %}
+                        {% set date_days_float_post = (now - post.date_posted).total_seconds() // 86400 %}                                      
+                        {% set date_minutes_string_post = "{}".format(date_minutes_float_post) %}
+                        {% set date_hours_string_post = "{}".format(date_hours_float_post) %}
+                        {% set date_days_string_post = "{}".format(date_days_float_post) %}
+                        {% if date_minutes_float_post >= 1440 %}                                                                
+                          <div class="d-flex flex-row mt-1 ellipsis"> <small class="mr-2"> {{ date_days_string_post.split('.')[0] }} days</small> <i class="fa fa-ellipsis-h"></i> </div>
+                        {% elif date_minutes_float_post >= 60 %}
+                          <div class="d-flex flex-row mt-1 ellipsis"> <small class="mr-2"> {{ date_hours_string_post.split('.')[0] }} hr</small> <i class="fa fa-ellipsis-h"></i> </div>
+                        {% elif date_minutes_float_post < 60 %}
+                          <div class="d-flex flex-row mt-1 ellipsis"> <small class="mr-2"> {{ date_minutes_string_post.split('.')[0] }} min</small> <i class="fa fa-ellipsis-h"></i> </div>
+                        {% endif %} 
+                      </div>
+                      {% if post.post_image %}
+                        <img src="{{ url_for('static', filename='images/default/M3AlOLH.jpg') }}" class="img-fluid">
+                      {% endif %}
+                      <div class="p-2">
+                        <p class="post-content">{{ post.content }}  {{ post.post_id }}</p>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div class="d-flex flex-row icons d-flex align-items-center"> <i class="fa fa-heart"></i> <i class="fa fa-smile-o ml-2"></i> </div>
+                          <div class="d-flex flex-row muted-color"> <span>{{ post.quantity_of_comments }} comments</span> <span class="ml-2">Share</span> </div>
+                        </div>
+                        <hr>
+                        {% for comment in comments %}
+                          {% if comment.post_id == post.post_id %}
+                            <div class="comments">
+                              <div class="d-flex flex-row mb-2"> <a href="/profile/{{ comment.user.username }}"><img src="{{ url_for('static', filename='images/default/M3AlOLH.jpg') }}" width="40" height="40" class="rounded-image"></a>
+                                <div class="d-flex flex-column ml-2"> <span class="name">{{ comment.user.username }}</span> <small class="comment-text">{{ comment.comment_content }}</small>
+                                  {% set date_minutes_float_comment = (now - comment.date_posted).total_seconds() // 60 %}
+                                  {% set date_hours_float_comment = (now - comment.date_posted).total_seconds() // 3600 %}
+                                  {% set date_days_float_comment = (now - comment.date_posted).total_seconds() // 86400 %}                                      
+                                  {% set date_minutes_string_comment = "{}".format(date_minutes_float_comment) %}
+                                  {% set date_hours_string_comment = "{}".format(date_hours_float_comment) %}
+                                  {% set date_days_string_comment = "{}".format(date_days_float_comment) %}
+                                  {% if date_minutes_float_comment >= 1440 %}
+                                    <div class="d-flex flex-row align-items-center status"> <!--<small>Like</small> <small>Reply</small> <small>Translate</small>--> <small>{{ date_days_string_comment.split('.')[0] }} days</small> </div>
+                                  {% elif date_minutes_float_comment >= 60 %}
+                                    <div class="d-flex flex-row align-items-center status"> <!--<small>Like</small> <small>Reply</small> <small>Translate</small>--> <small>{{ date_hours_string_comment.split('.')[0] }} hr </small> </div>
+                                  {% elif date_minutes_float_comment < 60 %}
+                                    <div class="d-flex flex-row align-items-center status"> <!--<small>Like</small> <small>Reply</small> <small>Translate</small>--> <small>{{ date_minutes_string_comment.split('.')[0] }} min</small> </div>
+                                  {% endif %}                                                                                                            
+                                </div>
+                                {% if comment.user_id == current_user_id %}
+                                  <div style="position: absolute; margin-left: 83%;">
+                                    <form method="POST">                                        
+                                      <div>
+                                        <input type="hidden" name="comment_id" value={{comment.comment_id}}>
+                                        <input type="hidden" name="post_id" value={{post.post_id}}>
+                                        {{ delete_comment_form.submit_delete(class="btn btn-outline-info", style="font-size: x-small; ") }}                                      
                                       </div>
-                                      {% set date_minutes_float = (now - post.date_posted).total_seconds() / 60%}
-                                      {% set date_hours_float = (now - post.date_posted).total_seconds() / 3600%}                                      
-                                      {% set date_minutes_string = "{}".format(date_minutes_float) %}
-                                      {% set date_hours_string = "{}".format(date_hours_float) %}
-                                      {% if date_minutes_float >= 60 %}
-                                        <div class="d-flex flex-row mt-1 ellipsis"> <small class="mr-2"> {{ date_hours_string.split('.')[0] }} hours </small> <i class="fa fa-ellipsis-h"></i> </div>
-                                      {% else %}
-                                        <div class="d-flex flex-row mt-1 ellipsis"> <small class="mr-2">{{ date_minutes_string.split('.')[0] }} minutes </small> <i class="fa fa-ellipsis-h"></i> </div>
-                                      {% endif %}                                    
+                                      {{ delete_comment_form.csrf_token }}
+                                    </form>
                                   </div>
-                                  {% if post.post_image %}
-                                    <img src="{{ url_for('static', filename='images/default/M3AlOLH.jpg') }}" class="img-fluid">
-                                  {% else %}
-                                    {{ pass }}
-                                  {% endif %}
-                                  <div class="p-2">
-                                      <p class="post-content">{{ post.content }}</p>
-                                      <hr>
-                                      <div class="d-flex justify-content-between align-items-center">
-                                          <div class="d-flex flex-row icons d-flex align-items-center"> <i class="fa fa-heart"></i> <i class="fa fa-smile-o ml-2"></i> </div>
-                                          <div class="d-flex flex-row muted-color"> <span>2 comments</span> <span class="ml-2">Share</span> </div>
-                                      </div>
-                                      <hr>
-                                      <div class="comments">
-                                          <div class="d-flex flex-row mb-2"> <img src="https://i.imgur.com/9AZ2QX1.jpg" width="40" class="rounded-image">
-                                              <div class="d-flex flex-column ml-2"> <span class="name">Daniel Frozer</span> <small class="comment-text">I like this alot! thanks alot</small>
-                                                  <div class="d-flex flex-row align-items-center status"> <small>Like</small> <small>Reply</small> <small>Translate</small> <small>18 mins</small> </div>
-                                              </div>
-                                          </div>
-                                          <div class="d-flex flex-row mb-2"> <img src="https://i.imgur.com/1YrCKa1.jpg" width="40" class="rounded-image">
-                                              <div class="d-flex flex-column ml-2"> <span class="name">Elizabeth goodmen</span> <small class="comment-text">Thanks for sharing!</small>
-                                                  <div class="d-flex flex-row align-items-center status"> <small>Like</small> <small>Reply</small> <small>Translate</small> <small>8 mins</small> </div>
-                                              </div>
-                                          </div>
-                                          <div class="comment-input"> <input type="text" class="form-control">
-                                              <div class="fonts"> <i class="fa fa-camera"></i> </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
+                                {% endif %}
+                              </div> 
+                            </div>
+                            <hr>
+                          {% endif %}
+                        {% endfor %}
+                        <form method="POST">                                        
+                          <div>
+                            <input type="hidden" name="post_id" value={{post.post_id}}>
+                            {{ comment_form.content_comment(class="commentarea", type="submit") }}                                                                                                                                                                      
+                          </div>                                   
+                          {{ comment_form.csrf_token }}
+                        </form>
                       </div>
                     </div>
-                  {% endfor %}
-                {% else %}
-                  {{ pass }}
-                {% endif %}
-              
-
-              <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title" id="exampleModalCenterTitle" style="color: black;">Create new post</h5>
-                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body" style="color: black;">
-                      <form method="POST" action="{{ url_for('content') }}">
-                        {{ form.hidden_tag() }}                           
-                            <div >
-                               {{ form.title.label(class="form-control-label") }}
-                               {{ displayField(form.title) }}
-                                 
-                            </div>
-                            <div>
-                                {{ form.content.label(class="form-control-label") }}
-                                {{ displayField(form.content) }}                              
-                            </div>                        
-                        <div >
-                            {{ form.submit(class="btn btn-outline-info") }}
-                        </div>
-                     </form>
-                    </div>                    
                   </div>
                 </div>
               </div>
-              
-              
-            </div>
-            
+                        
+          {% endfor %}      
+        {% else %}
+          {{ pass }}
+        {% endif %}        
 
-            <div class="grid-item">
-              <div style="position: fixed;">
-                <div style="position: absolute;">
-                  <p style="margin-left: 40%;">asjklfhaosf</p>
-                </div>
-                
-              </div>   
-              
-            </div>
 
-            
+
+
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="create-post" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form method="POST" style="color: black;">
+                  {{ post_form.hidden_tag() }}                    
+                    <div>                                                  
+                      {{ post_form.content(placeholder="xd") }}                            
+                    </div>                        
+                  <div >
+                      {{ post_form.submit_post(class="btn btn-outline-info") }}
+                  </div>
+               </form>
+              </div>              
+            </div>
+          </div>
         </div>
+      </div>
 
+
+
+      <div class="grid-item" style="margin-top: -22px;">
+        <div style="position: absolute; ">
+          <div class="grid-item-right">
+            <h4 style="margin-top: 10px;">Your's Friends</h4>
+            <ul class="friend-list-content clearfix">          
+              {% for friend in friends %}                                                                
+                {% if friend.user %}
+                  <li style="margin-bottom: 11px;">                                            
+                    <a href="/profile/{{ friend.user.username }}">
+                      <div class="friend-img"><img class="rounded-circle" style="width:100%; height: 100%;" alt="" src="{{ url_for('static', filename='images/default/M3AlOLH.jpg') }}" /></div>
+                      <div class="friend-info">                                                    
+                        <p>                                                        
+                          {{ friend.user.firstname }} {{ friend.user.lastname }}                                                                                                                                                               
+                        </p>                                                                                 
+                      </div>
+                    </a>                                                                                                                
+                  </li>                                                                 
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-
-    
-
+  </div>
 {% endblock %}

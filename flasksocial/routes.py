@@ -1,9 +1,9 @@
 from flask import render_template, redirect, url_for, flash, request, jsonify
-from flasksocial import app, db, conn, login, url_safe
+from flasksocial import app, db, conn, login, url_safe, socketio
 from flask_login import login_user, logout_user, login_required, current_user
 from flasksocial.mail_body import Send 
-from flasksocial.forms import Registration, Complete, Login, ChangePassword, PostForm, PostCommentForm, ChangeName, FriendsForm, AcceptFriend
-from flasksocial.models import User, Friends, Post
+from flasksocial.forms import Registration, Complete, Login, ChangePassword, PostForm, PostCommentForm, PostCommentDeleteForm, ChangeName, FriendsForm, AcceptFriend
+from flasksocial.models import User, Friends, Post, Comment
 from itsdangerous import SignatureExpired
 from passlib.hash import pbkdf2_sha256
 import datetime
@@ -120,20 +120,44 @@ def delete():
 @login_required
 def content():
     if confirm() == True:
-        post_form = PostForm()        
-        current_user_id = current_user.get_id()            
+        post_form = PostForm()
+        comment_form = PostCommentForm()
+        delete_comment_form = PostCommentDeleteForm()           
+        current_user_id = current_user.get_id()
+        friends = db.session.query(Friends).filter_by(user_id=current_user_id).all()   
         try:
-            posts = db.session.query(Post)            
+            posts = db.session.query(Post)
+            comments = db.session.query(Comment)        
         except:
-            pass
-        #print(datetime.datetime.now()-posts[2].date_posted)
-        if post_form.validate_on_submit():
-            post = Post(title=post_form.title.data, content=post_form.content.data, user_id=current_user.get_id())            
+            pass            
+        if post_form.submit_post.data and post_form.validate():
+            post = Post(content=post_form.content.data, user_id=current_user_id)            
             db.session.add(post)
             db.session.commit()                      
             flash('Your post has been created!', 'success')
+            return redirect(url_for('content'))            
+        elif comment_form.content_comment.data and comment_form.validate():
+            post_id = int(request.form['post_id'])            
+            comment = Comment(post_id=post_id, user_id=current_user_id, comment_content=comment_form.content_comment.data)
+            db.session.add(comment)
+            db.session.commit()
+            quantity_of_comments = db.session.query(Post).filter_by(post_id=post_id).first().quantity_of_comments           
+            quantity_of_comments += 1
+            db.session.query(Post).filter_by(post_id=post_id).update({Post.quantity_of_comments: quantity_of_comments}, synchronize_session=False)
+            db.session.commit()
             return redirect(url_for('content'))         
-        return render_template("content.html", form=post_form, posts=posts, now=datetime.datetime.utcnow())
+        elif delete_comment_form.submit_delete.data and delete_comment_form.validate():
+            comment_id = int(request.form['comment_id'])
+            post_id = int(request.form['post_id'])
+            db.session.query(Comment).filter_by(comment_id=comment_id).delete()
+            db.session.commit()
+            quantity_of_comments = db.session.query(Post).filter_by(post_id=post_id).first().quantity_of_comments           
+            quantity_of_comments -= 1
+            db.session.query(Post).filter_by(post_id=post_id).update({Post.quantity_of_comments: quantity_of_comments}, synchronize_session=False)
+            db.session.commit()
+            return redirect(url_for('content'))            
+        return render_template("content.html", post_form=post_form, comment_form=comment_form, delete_comment_form=delete_comment_form, posts=posts,
+                                               comments=comments, friends=friends, current_user_id=int(current_user_id), now=datetime.datetime.utcnow())
     return "Account not active"
 
 
@@ -282,7 +306,7 @@ def accept_invite():
     users_inivites = cur.fetchall()    
     if accept_friend_form.validate_on_submit():        
         if accept_friend_form.accept.data:
-            invite_id = int(request.form['accept'])
+            invite_id = int(request.form['accept_inv'])
             cos = db.session.query(Friends).filter_by(user_id=current_user_id).all()  
             for user_invitation in cos:
                 if user_invitation.invite == invite_id:      
@@ -295,7 +319,7 @@ def accept_invite():
                     db.session.add(Friends(user_id=user_invitation.invite, friend_id=current_user_id))
                     db.session.commit()                    
         elif accept_friend_form.discard.data:
-            invite_id = int(request.form['discard'])
+            invite_id = int(request.form['discard_inv'])
             cos = db.session.query(Friends).filter_by(user_id=current_user_id).all()  
             for user_invitation in cos:
                 if user_invitation.invite == invite_id:                    
@@ -309,9 +333,3 @@ def accept_invite():
 def test():
     Send.confirmation_mail('perpatussss@gmail.com', 'ktos')
     return 'cos'
-
-
-"""@app.route("/content")
-def post():
-    result = db.session.query(User).filter_by(username='perpatu').first() 
-    return render_template("content.html", result=result)"""

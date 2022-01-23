@@ -2,6 +2,7 @@ from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
+from flask_socketio import SocketIO
 from itsdangerous import URLSafeTimedSerializer
 import psycopg2.extras
 
@@ -38,6 +39,8 @@ app.config['MAIL_ASCII_ATTACHMENTS'] = False
 mail = Mail(app)
 
 url_safe = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+socketio = SocketIO(app)
 
 
 from flasksocial import routes

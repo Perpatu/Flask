@@ -1,4 +1,5 @@
 from datetime import datetime
+from email.policy import default
 from flask_login import UserMixin
 from flasksocial import db
 
@@ -36,15 +37,15 @@ class Friends(db.Model):
 class Post(db.Model):
     __tablename__ = 'post'
     post_id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.user_id'))    
-    title = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.user_id'))
     content = db.Column(db.Text(), nullable=False) 
     date_posted = db.Column(db.DateTime(), nullable=False, default=datetime.utcnow)
     post_image = db.Column(db.String(30))
+    quantity_of_comments = db.Column(db.Integer(), default=0)
     user = db.relationship('User', backref='author', lazy=True)
-
+    
     def __repr__(self):
-        return f"Post('{self.user}', '{self.title}', {self.content}, '{self.date_posted}', '{self.post_image}')"
+        return f"Post('{self.user}', '{self.post_id}', {self.content}', '{self.date_posted}', '{self.post_image}')"
 
 
 class Comment(db.Model):
@@ -53,7 +54,9 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer(), db.ForeignKey('post.post_id'))
     comment_content = db.Column(db.Text(), nullable=False)
     date_posted = db.Column(db.DateTime(), nullable=False, default=datetime.utcnow)
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.user_id'))
     post = db.relationship('Post', lazy=True)
+    user = db.relationship('User', lazy=True)
 
     def __repr__(self):
         return f"Comment('{self.post}', '{self.comment_content}', '{self.date_posted}')"

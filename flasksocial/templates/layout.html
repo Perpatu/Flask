@@ -11,13 +11,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     {% block script %}{% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script src="{{url_for('static', filename='JS/divchange.js')}}"></script>
     <script src="{{url_for('static', filename='JS/lightbox-plus-jquery.min.js')}}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>    
     <script src="{{url_for('static', filename='JS/bell.js')}}"></script>
     <script src="{{url_for('static', filename='JS/onbeforeunload.js')}}"></script>
     <script src="{{url_for('static', filename='JS/notifications.js')}}"></script>
+    <script src="{{url_for('static', filename='JS/submitextarea.js')}}"></script>
     <script src="{{url_for('static', filename='JS/notification_div.js')}}" defer></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+        socket.on('connect', function() {
+            socket.emit('my event', {data: 'I\'m connected!'});
+        });
+    </script>
+    
     
 </head>
 <body>
@@ -31,7 +40,7 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item active">
-                        <a class="nav-link" href="/" style="color: #28a745">Home <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="/content" style="color: #28a745">Home <span class="sr-only">(current)</span></a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" style="color: #28a745" href="/login">Login</a>

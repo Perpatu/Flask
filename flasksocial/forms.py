@@ -1,3 +1,4 @@
+from tkinter import HIDDEN
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, InputRequired
@@ -55,13 +56,16 @@ class ChangeName(FlaskForm):
 
 
 class PostForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
-    submit = SubmitField('Post')
+    submit_post = SubmitField('Post')
 
 class PostCommentForm(FlaskForm):
-    content = TextAreaField('content', validators=[DataRequired()])
-    submit = SubmitField("Comment")
+    content_comment = TextAreaField('content', validators=[DataRequired()])
+    submit_comment = SubmitField("Comment")
+    
+
+class PostCommentDeleteForm(FlaskForm):
+    submit_delete = SubmitField("Delete")
 
 
 class FriendsForm(FlaskForm):
